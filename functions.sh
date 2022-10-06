@@ -7,3 +7,13 @@ generateOutput() {
   echo "{ \"${Task}\": {\"status\": \"${Status}\", \"message\": \"${Message}\"}}"  | jq . > ${OUTPUT_DIR}/summary.json
   echo "{ \"status\": \"${Status}\", \"message\": \"${Message}\"}"  | jq . > ${OUTPUT_DIR}/${Task}.json
 }
+
+function getComponentName() {
+  COMPONENT_NAME=`cat /bp/data/environment_build | jq -r .build_detail.repository.name`
+  echo "$COMPONENT_NAME"
+}
+
+function getRepositoryTag() {
+  BUILD_REPOSITORY_TAG=`cat /bp/data/environment_build | jq -r .build_detail.repository.tag`
+  echo "$BUILD_REPOSITORY_TAG"
+}
