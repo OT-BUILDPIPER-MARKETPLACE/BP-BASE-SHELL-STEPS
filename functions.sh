@@ -17,3 +17,9 @@ function getRepositoryTag() {
   BUILD_REPOSITORY_TAG=`cat /bp/data/environment_build | jq -r .build_detail.repository.tag`
   echo "$BUILD_REPOSITORY_TAG"
 }
+
+function logInfoMessage() {
+    MESSAGE="$1"
+    CURRENT_DATE=`date "+%D: %T"`
+    echo "[$CURRENT_DATE] [INFO] $MESSAGE"
+}
