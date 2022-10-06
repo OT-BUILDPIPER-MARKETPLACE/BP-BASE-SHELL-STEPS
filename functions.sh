@@ -23,3 +23,9 @@ function logInfoMessage() {
     CURRENT_DATE=`date "+%D: %T"`
     echo "[$CURRENT_DATE] [INFO] $MESSAGE"
 }
+
+function logErrorMessage() {
+    MESSAGE="$1"
+    CURRENT_DATE=`date "+%D: %T"`
+    echo "[$CURRENT_DATE] [ERROR] $MESSAGE"
+}
