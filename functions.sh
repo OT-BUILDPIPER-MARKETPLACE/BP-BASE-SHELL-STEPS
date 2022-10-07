@@ -21,11 +21,23 @@ function getRepositoryTag() {
 function logInfoMessage() {
     MESSAGE="$1"
     CURRENT_DATE=`date "+%D: %T"`
-    echo "[$CURRENT_DATE] [INFO] $MESSAGE"
+    COLOUR_GREEN="\e[32m[INFO]\e[0m"
+    echo -e "[$CURRENT_DATE] $COLOUR_GREEN $MESSAGE"
+
 }
 
 function logErrorMessage() {
     MESSAGE="$1"
     CURRENT_DATE=`date "+%D: %T"`
-    echo "[$CURRENT_DATE] [ERROR] $MESSAGE"
+    COLOUR_RED="\e[31m[ERROR]\e[0m"
+    echo -e "[$CURRENT_DATE] $COLOUR_RED $MESSAGE"
 }
+
+function logWarningMessage() {
+    MESSAGE="$1"
+    CURRENT_DATE=`date "+%D: %T"`
+    COLOUR_YELLOW="\e[1;33m[WARNING]\e[0m"
+    echo -e "[$CURRENT_DATE] $COLOUR_YELLOW $MESSAGE"
+}
+
+
