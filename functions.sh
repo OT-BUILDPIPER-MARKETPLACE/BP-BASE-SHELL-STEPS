@@ -1,3 +1,10 @@
+GREEN="32m"
+RED="31m"
+YELLOW="1;33m"
+
+COLOR_START="\e["
+COLOR_END="\e[0m"
+
 generateOutput() {
   Task=$1
   Status=$2
@@ -21,23 +28,20 @@ function getRepositoryTag() {
 function logInfoMessage() {
     MESSAGE="$1"
     CURRENT_DATE=`date "+%D: %T"`
-    COLOUR_GREEN="\e[32m[INFO]\e[0m"
-    echo -e "[$CURRENT_DATE] $COLOUR_GREEN $MESSAGE"
+    echo -e "[$CURRENT_DATE] "$COLOR_START$GREEN[INFO]$COLOR_END" $MESSAGE"
 
 }
 
 function logErrorMessage() {
     MESSAGE="$1"
     CURRENT_DATE=`date "+%D: %T"`
-    COLOUR_RED="\e[31m[ERROR]\e[0m"
-    echo -e "[$CURRENT_DATE] $COLOUR_RED $MESSAGE"
+    echo -e "[$CURRENT_DATE] "$COLOR_START$RED[ERROR]$COLOR_END" $MESSAGE"
 }
 
 function logWarningMessage() {
     MESSAGE="$1"
     CURRENT_DATE=`date "+%D: %T"`
-    COLOUR_YELLOW="\e[1;33m[WARNING]\e[0m"
-    echo -e "[$CURRENT_DATE] $COLOUR_YELLOW $MESSAGE"
+    echo -e "[$CURRENT_DATE] "$COLOR_START$YELLOW[WARNING]$COLOR_END" $MESSAGE"
 }
 
 
