@@ -1,47 +1,27 @@
-GREEN="32m"
-RED="31m"
-YELLOW="1;33m"
+#!/bin/bash
 
-COLOR_START="\e["
-COLOR_END="\e[0m"
+functions_dir="$(dirname "$0")"
+source "$functions_dir/./log-functions.sh"
 
 generateOutput() {
   Task=$1
   Status=$2
   Message=$3
   OUTPUT_DIR=/src/${EXECUTION_DIR}/${EXECUTION_TASK_ID}
-  mkdir -p ${OUTPUT_DIR}
-  echo "{ \"${Task}\": {\"status\": \"${Status}\", \"message\": \"${Message}\"}}"  | jq . > ${OUTPUT_DIR}/summary.json
-  echo "{ \"status\": \"${Status}\", \"message\": \"${Message}\"}"  | jq . > ${OUTPUT_DIR}/${Task}.json
+  mkdir -p "${OUTPUT_DIR}"
+  echo "{ \"${Task}\": {\"status\": \"${Status}\", \"message\": \"${Message}\"}}"  | jq . > "${OUTPUT_DIR}"/summary.json
+  echo "{ \"status\": \"${Status}\", \"message\": \"${Message}\"}"  | jq . > "${OUTPUT_DIR}"/"${Task}".json
 }
 
 function getComponentName() {
-  COMPONENT_NAME=`cat /bp/data/environment_build | jq -r .build_detail.repository.name`
+  COMPONENT_NAME=$(jq -r .build_detail.repository.name < /bp/data/environment_build )
   echo "$COMPONENT_NAME"
 }
 
 function getRepositoryTag() {
-  BUILD_REPOSITORY_TAG=`cat /bp/data/environment_build | jq -r .build_detail.repository.tag`
+  BUILD_REPOSITORY_TAG=$(jq -r .build_detail.repository.tag < /bp/data/environment_build)
   echo "$BUILD_REPOSITORY_TAG"
 }
 
-function logInfoMessage() {
-    MESSAGE="$1"
-    CURRENT_DATE=`date "+%D: %T"`
-    echo -e "[$CURRENT_DATE] "$COLOR_START$GREEN[INFO]$COLOR_END" $MESSAGE"
-
-}
-
-function logErrorMessage() {
-    MESSAGE="$1"
-    CURRENT_DATE=`date "+%D: %T"`
-    echo -e "[$CURRENT_DATE] "$COLOR_START$RED[ERROR]$COLOR_END" $MESSAGE"
-}
-
-function logWarningMessage() {
-    MESSAGE="$1"
-    CURRENT_DATE=`date "+%D: %T"`
-    echo -e "[$CURRENT_DATE] "$COLOR_START$YELLOW[WARNING]$COLOR_END" $MESSAGE"
-}
 
 
