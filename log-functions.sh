@@ -12,8 +12,8 @@ function logColoredMessage() {
     LOG_LEVEL=$2
     MESSAGE="$3"
 
-    CURRENT_DATE=`date "+%D: %T"`
-    echo -e "[$CURRENT_DATE] "${COLOR_START}${COLOR}[$LOG_LEVEL]${COLOR_END}" $MESSAGE"
+    CURRENT_DATE=$(date "+%D: %T")
+    echo -e "[$CURRENT_DATE]"" ""${COLOR_START}""${COLOR}""[""$LOG_LEVEL""]""${COLOR_END}"" ""$MESSAGE"
 }
 
 function logInfoMessage() {
