@@ -1,3 +1,5 @@
+#!/bin/bash
+
 GREEN="32m"
 RED="31m"
 YELLOW="1;33m"
