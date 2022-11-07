@@ -14,12 +14,12 @@ generateOutput() {
 }
 
 function getComponentName() {
-  COMPONENT_NAME=`cat /bp/data/environment_build | jq -r .build_detail.repository.name`
+  COMPONENT_NAME=$(jq -r .build_detail.repository.name < /bp/data/environment_build )
   echo "$COMPONENT_NAME"
 }
 
 function getRepositoryTag() {
-  BUILD_REPOSITORY_TAG=`cat /bp/data/environment_build | jq -r .build_detail.repository.tag`
+  BUILD_REPOSITORY_TAG=$(jq -r .build_detail.repository.tag < /bp/data/environment_build)
   echo "$BUILD_REPOSITORY_TAG"
 }
 
