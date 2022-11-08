@@ -1,8 +1,5 @@
 #!/bin/bash
 
-functions_dir="$(dirname "$0")"
-source "$functions_dir/./log-functions.sh"
-
 generateOutput() {
   Task=$1
   Status=$2
