@@ -2,8 +2,8 @@ function isFileExist() {
     FILEPATH=$1
 
     if [ -f "$FILEPATH" ]; then
-        return 0
+        echo 0
     else
-        return 1
+        echo 1
     fi
 }

@@ -1,8 +1,8 @@
 function isStrNonEmpty() {
     STR=$1
     if [ -z "$STR" ]; then
-        return 1
+        echo 1
     else
-        return 0
+        echo 0
     fi
 }
