@@ -8,3 +8,11 @@ function bucketExist() {
         echo 1
     fi
 }
+
+function copyFileToS3() {
+    SOURCE_FILE=$1
+    S3_BUCKET=$2
+    KEY_NAME=$3
+
+    aws s3 cp ${SOURCE_FILE} s3://${S3_BUCKET}/${KEY_NAME}
+}
