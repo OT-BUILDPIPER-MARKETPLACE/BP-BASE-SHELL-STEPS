@@ -16,3 +16,11 @@ function copyFileToS3() {
 
     aws s3 cp ${SOURCE_FILE} s3://${S3_BUCKET}/${KEY_NAME}
 }
+
+function copyFileFromS3() {
+    S3_BUCKET=$1
+    FILE_KEY=$2
+    FILE_PATH=$3
+
+    aws s3 cp s3://${S3_BUCKET}/${KEY_NAME} ${FILE_PATH} 
+}
