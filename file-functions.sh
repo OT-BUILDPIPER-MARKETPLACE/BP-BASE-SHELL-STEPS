@@ -7,3 +7,10 @@ function isFileExist() {
         echo 1
     fi
 }
+
+function fileContainsString() {
+    FILEPATH=$1
+    TEXT="$2"
+    grep -q ${TEXT} ${FILEPATH}
+    echo $?
+}
