@@ -4,6 +4,7 @@ generateOutput() {
   Task=$1
   Status=$2
   Message=$3
+  EXECUTION_DIR="/bp/execution_dir"
   OUTPUT_DIR=${EXECUTION_DIR}/${EXECUTION_TASK_ID}
   sudo mkdir -p "${OUTPUT_DIR}"
   echo "{ \"${Task}\": {\"status\": \"${Status}\", \"message\": \"${Message}\"}}"  | jq . > "${OUTPUT_DIR}"/summary.json
