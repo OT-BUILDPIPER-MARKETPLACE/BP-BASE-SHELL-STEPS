@@ -7,8 +7,8 @@ generateOutput() {
   EXECUTION_DIR="/bp/execution_dir"
   OUTPUT_DIR=${EXECUTION_DIR}/${EXECUTION_TASK_ID}
   mkdir -p "${OUTPUT_DIR}"
-  echo "{ \"${Task}\": {\"status\": \"${Status}\", \"message\": \"${Message}\"}}"  | jq . > "${OUTPUT_DIR}"/summary.json
-  echo "{ \"status\": \"${Status}\", \"message\": \"${Message}\"}"  | jq . > "${OUTPUT_DIR}"/"${Task}".json
+  echo "{ \"${Task}\": {\"status\": \"${Status}\", \"message\": \"${Message}\"}}"  | jq . >> "${OUTPUT_DIR}"/summary.json
+  echo "{ \"status\": \"${Status}\", \"message\": \"${Message}\"}"  | jq . >> "${OUTPUT_DIR}"/"${Task}".json
 }
 
 function getComponentName() {
