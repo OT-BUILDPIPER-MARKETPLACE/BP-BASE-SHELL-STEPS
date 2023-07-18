@@ -36,7 +36,7 @@ function saveTaskStatus() {
       exit 1
     else
       logWarningMessage "Please check ${ACTIVITY_SUB_TASK_CODE} failed!!!"
-      generateOutput "${ACTIVITY_SUB_TASK_CODE}" true "Please check ${ACTIVITY_SUB_TASK_CODE} failed!!!"
+      generateOutput "${ACTIVITY_SUB_TASK_CODE}" false "Please check ${ACTIVITY_SUB_TASK_CODE} failed!!!"
   fi
 }
 
