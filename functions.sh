@@ -1,14 +1,25 @@
 #!/bin/bash
 
 generateOutput() {
-  Task=$1
-  Status=$2
-  Message=$3
-  EXECUTION_DIR="/bp/execution_dir"
-  OUTPUT_DIR=${EXECUTION_DIR}/${EXECUTION_TASK_ID}
-  mkdir -p "${OUTPUT_DIR}"
-  echo "{ \"${Task}\": {\"status\": \"${Status}\", \"message\": \"${Message}\"}}"  | jq . > "${OUTPUT_DIR}"/summary.json
-  echo "{ \"status\": \"${Status}\", \"message\": \"${Message}\"}"  | jq . > "${OUTPUT_DIR}"/"${Task}".json
+    Task=$1
+    Status=$2
+    Message=$3
+    ACTIVITY_SUB_TASK_CODE="$1"
+    EXECUTION_DIR="bp/execution_dir"
+    OUTPUT_DIR="${EXECUTION_DIR}/${EXECUTION_TASK_ID}"
+    file_name="$OUTPUT_DIR/summary.json"
+
+    mkdir -p "$OUTPUT_DIR"
+
+    file_content=""
+    if [[ -f "$file_name" ]]; then
+        file_content=$(<"$file_name")
+    fi
+    [[ "$file_content" != "["* ]] && file_content="[$file_content]"
+    updated_content=$(jq -c ". += [{ \"$ACTIVITY_SUB_TASK_CODE\": { \"status\": \"$Status\", \"message\": \"$Message\" } }]" <<< "$file_content")
+    echo "$updated_content" | jq "." > "$file_name"
+    echo "{ \"$ACTIVITY_SUB_TASK_CODE\": { \"status\": \"$Status\", \"message\": \"$Message\" } }" | jq "." > "${OUTPUT_DIR}/${ACTIVITY_SUB_TASK_CODE}.json"
+    echo "Job step response updated in: $file_name"
 }
 
 function getComponentName() {
