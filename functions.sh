@@ -5,7 +5,7 @@ generateOutput() {
     Status=$2
     Message=$3
     ACTIVITY_SUB_TASK_CODE="$1"
-    EXECUTION_DIR="bp/execution_dir"
+    EXECUTION_DIR="/bp/execution_dir"
     OUTPUT_DIR="${EXECUTION_DIR}/${EXECUTION_TASK_ID}"
     file_name="$OUTPUT_DIR/summary.json"
 
