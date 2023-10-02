@@ -9,6 +9,10 @@ function bucketExist() {
     fi
 }
 
+function getAccountId() {
+    aws sts get-caller-identity --query "Account" --output text
+}
+
 function copyFileToS3() {
     SOURCE_FILE=$1
     S3_BUCKET=$2
