@@ -24,17 +24,24 @@ function copyFileFromS3() {
     aws s3 cp s3://${S3_BUCKET}/${FILE_KEY} ${FILE_PATH} 
 }
 
+function policyExists() {
+    POLICY_ARN=$1
+
+    aws iam get-policy --policy-arn ${POLICY_ARN} >/dev/null 2>&1
+    echo $?
+}
+
 function createPolicy() {
     POLICY_NAME=$1
     POLICY_FILE_PATH=$2
 
     aws iam create-policy \
-    --policy-name ${POLICY_NAME} \
+    --policy-name ${POLICY_NAME} --no-paginate \
     --policy-document file://${POLICY_FILE_PATH}
 }
 
 function createRole() {
     ROLE_NAME=$1
     POLICY_DOCUMENT=$2
-    aws iam create-role --role-name ${ROLE_NAME} --assume-role-policy-document file://${POLICY_DOCUMENT}
+    aws iam create-role --role-name ${ROLE_NAME} --no-paginate --assume-role-policy-document file://${POLICY_DOCUMENT}
 }
