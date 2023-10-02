@@ -32,3 +32,9 @@ function createPolicy() {
     --policy-name ${POLICY_NAME} \
     --policy-document file://${POLICY_FILE_PATH}
 }
+
+function createRole() {
+    ROLE_NAME=$1
+    POLICY_DOCUMENT=$2
+    aws iam create-role --role-name ${ROLE_NAME} --assume-role-policy-document file://${POLICY_DOCUMENT}
+}
