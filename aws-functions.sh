@@ -44,6 +44,13 @@ function createPolicy() {
     --policy-document file://${POLICY_FILE_PATH}
 }
 
+function roleExists() {
+    ROLE_NAME=$1
+
+    aws iam get-role --role-name ${ROLE_NAME} >/dev/null 2>&1
+    echo $?
+}
+
 function createRole() {
     ROLE_NAME=$1
     POLICY_DOCUMENT=$2
