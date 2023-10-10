@@ -6,3 +6,11 @@ function isStrNonEmpty() {
         echo 0
     fi
 }
+
+function getNthTextInALine() {
+    LINE="$1"
+    SEPARATOR=$2
+    POSITION=$3
+
+    echo ${LINE} | awk -F${SEPARATOR} -v POS=${POSITION} '{print $POS}'
+}

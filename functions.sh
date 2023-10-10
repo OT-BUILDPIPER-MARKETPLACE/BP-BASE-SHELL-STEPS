@@ -20,6 +20,16 @@ function getRepositoryTag() {
   echo "$BUILD_REPOSITORY_TAG"
 }
 
+function getDockerfileParentPath() {
+  DOCKERFILE_ENTRY=$(jq -r .build_detail.dockerfile_path  < /bp/data/environment_build)
+  getNthTextInALine DOCKERFILE_ENTRY : 2
+}
+
+function getDockerfileName() {
+  DOCKERFILE_ENTRY=$(jq -r .build_detail.dockerfile_path  < /bp/data/environment_build)
+  getNthTextInALine DOCKERFILE_ENTRY : 1
+}
+
 function saveTaskStatus() {
   TASK_STATUS=$1
   ACTIVITY_SUB_TASK_CODE=$2  
