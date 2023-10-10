@@ -14,3 +14,16 @@ function fileContainsString() {
     grep -q ${TEXT} ${FILEPATH}
     echo $?
 }
+
+function getLineForAString() {
+    FILEPATH=$1
+    TEXT=$2
+    grep ${TEXT} ${FILEPATH} 
+}
+
+function textExistsInALine(){
+    LINE="$1"
+    TEXT="$2"
+    echo ${LINE}  | grep -q ${TEXT}
+    echo $?
+}
