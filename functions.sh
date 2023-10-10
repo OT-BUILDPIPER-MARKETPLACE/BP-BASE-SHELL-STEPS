@@ -22,12 +22,12 @@ function getRepositoryTag() {
 
 function getDockerfileParentPath() {
   DOCKERFILE_ENTRY=$(jq -r .build_detail.dockerfile_path  < /bp/data/environment_build)
-  getNthTextInALine DOCKERFILE_ENTRY : 2
+  getNthTextInALine $DOCKERFILE_ENTRY : 2
 }
 
 function getDockerfileName() {
   DOCKERFILE_ENTRY=$(jq -r .build_detail.dockerfile_path  < /bp/data/environment_build)
-  getNthTextInALine DOCKERFILE_ENTRY : 1
+  getNthTextInALine $DOCKERFILE_ENTRY : 1
 }
 
 function saveTaskStatus() {
