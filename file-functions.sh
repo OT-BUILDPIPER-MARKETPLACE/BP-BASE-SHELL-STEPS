@@ -11,14 +11,14 @@ function isFileExist() {
 function fileContainsString() {
     FILEPATH=$1
     TEXT="$2"
-    grep -q ${TEXT} ${FILEPATH}
+    grep -q "${TEXT}" "${FILEPATH}"
     echo $?
 }
 
 function getLineForAString() {
     FILEPATH=$1
     TEXT=$2
-    grep ${TEXT} ${FILEPATH} 
+    grep "${TEXT}" "${FILEPATH} "
 }
 
 function textExistsInALine(){
