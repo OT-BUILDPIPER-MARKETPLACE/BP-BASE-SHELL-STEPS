@@ -1,10 +1,10 @@
 #!/bin/bash
 
 generateOutput() {
-    Task=$1
-    Status=$2
-    Message=$3
     ACTIVITY_SUB_TASK_CODE="$1"
+    Status="$2"
+    Message="$3"
+
     EXECUTION_DIR="/bp/execution_dir"
     OUTPUT_DIR="${EXECUTION_DIR}/${EXECUTION_TASK_ID}"
     file_name="$OUTPUT_DIR/summary.json"
@@ -32,9 +32,19 @@ function getRepositoryTag() {
   echo "$BUILD_REPOSITORY_TAG"
 }
 
+function getDockerfileParentPath() {
+  DOCKERFILE_ENTRY=$(jq -r .build_detail.dockerfile_path  < /bp/data/environment_build)
+  getNthTextInALine "$DOCKERFILE_ENTRY" : 2
+}
+
+function getDockerfileName() {
+  DOCKERFILE_ENTRY=$(jq -r .build_detail.dockerfile_path  < /bp/data/environment_build)
+  getNthTextInALine "$DOCKERFILE_ENTRY" : 1
+}
+
 function saveTaskStatus() {
-  TASK_STATUS=$1
-  ACTIVITY_SUB_TASK_CODE=$2  
+  TASK_STATUS="$1"
+  ACTIVITY_SUB_TASK_CODE="$2"  
 
   if [ "$TASK_STATUS" -eq 0 ]
   then
