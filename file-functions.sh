@@ -20,12 +20,18 @@ function fileContainsString() {
 function getLineForAString() {
     FILEPATH="$1"
     TEXT="$2"
-    grep "${TEXT}" "${FILEPATH}" 
+    grep "${TEXT}" "${FILEPATH}"
 }
 
 function textExistsInALine(){
     LINE="$1"
     TEXT="$2"
-    echo "${LINE}"  | grep -q "${TEXT}"
-    echo "$?"
+    # Split single comma separated string into array
+    IFS="," read -r -a TEXT_ARRAY <<< "$TEXT"
+    for ITEM in "${TEXT_ARRAY[@]}"; do
+        if [ "$ITEM" == "$LINE" ]; then
+            return 0
+        fi
+    done
+    return 1
 }
