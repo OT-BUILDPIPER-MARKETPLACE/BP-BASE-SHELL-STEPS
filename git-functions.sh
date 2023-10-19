@@ -40,7 +40,7 @@ function getLastAuthorOfFiles() {
     FILES="$2"
     for FILE in ${FILES}
     do
-        author=`getLastAuthorOfFile ${BRANCH} ${FILE}`
+        author=$(getLastAuthorOfFile "${BRANCH}" "${FILE}")
         echo "${FILE}: ${author}"
     done
 }
