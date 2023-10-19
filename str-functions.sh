@@ -1,5 +1,7 @@
+#!/bin/bash
+
 function isStrNonEmpty() {
-    STR=$1
+    STR="$1"
     if [ -z "$STR" ]; then
         echo 1
     else
@@ -9,8 +11,8 @@ function isStrNonEmpty() {
 
 function getNthTextInALine() {
     LINE="$1"
-    SEPARATOR=$2
-    POSITION=$3
+    SEPARATOR="$2"
+    POSITION="$3"
 
-    echo ${LINE} | awk -F${SEPARATOR} -v POS=${POSITION} '{print $POS}'
+    echo "${LINE}" | awk -F "${SEPARATOR}" -v POS="${POSITION}" "{print $POS}"
 }

@@ -1,7 +1,9 @@
-function switchBranch() {
-    TGT_BRANCH=$1
+#!/bin/bash
 
-    git checkout $TGT_BRANCH
+function switchBranch() {
+    TGT_BRANCH="$1"
+
+    git checkout "$TGT_BRANCH"
 }
 
 function showStatusInShortFormat() {
@@ -9,11 +11,11 @@ function showStatusInShortFormat() {
 }
 
 function findConflictingFiles() {
-    SRC_BRANCH=$1
-    TGT_BRANCH=$2
+    SRC_BRANCH="$1"
+    TGT_BRANCH="$2"
 
     git checkout -q "${TGT_BRANCH}"
-#    git pull origin ${TGT_BRANCH}
+    # git pull origin "${TGT_BRANCH}"
 
     git checkout -q -b temp_merge_branch
     git merge -q "$SRC_BRANCH" 1> /dev/null
@@ -22,24 +24,24 @@ function findConflictingFiles() {
     git merge --abort
     git checkout -q "${TGT_BRANCH}"
     git branch -q -D temp_merge_branch
-    echo $conflicts
+    echo "$conflicts"
 }
 
 function getLastAuthorOfFile() {
-    BRANCH=$1
-    FILE=$2
+    BRANCH="$1"
+    FILE="$2"
 
-    git checkout -q $BRANCH
+    git checkout -q "$BRANCH"
 
-    git log -1  --pretty=format:"%an" ${FILE}
+    git log -1 --pretty=format:"%an" "${FILE}"
 }
 
 function getLastAuthorOfFiles() {
-    BRANCH=$1
+    BRANCH="$1"
     FILES="$2"
-    for FILE in ${FILES}
+    for FILE in "${FILES[@]}"
     do
-        author=`getLastAuthorOfFile ${BRANCH} ${FILE}`
+        author=$(getLastAuthorOfFile "$BRANCH" "$FILE")
         echo "${FILE}: ${author}"
     done
 }
