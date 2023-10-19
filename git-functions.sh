@@ -12,6 +12,7 @@ function findConflictingFiles() {
     SRC_BRANCH=$1
     TGT_BRANCH=$2
 
+    git checkout -q "${SRC_BRANCH}"
     git checkout -q "${TGT_BRANCH}"
 #    git pull origin ${TGT_BRANCH}
 
