@@ -20,7 +20,9 @@ function findConflictingFiles() {
     git merge -q "$SRC_BRANCH" 1> /dev/null
 
     conflicts=$(git diff --name-only --diff-filter=U)
-    git merge --abort
+    if [ -n "${CONFLICTING_FILES}" ]; then
+        git merge --abort
+    fi
     git checkout -q "${TGT_BRANCH}"
     git branch -q -D temp_merge_branch
     echo $conflicts
