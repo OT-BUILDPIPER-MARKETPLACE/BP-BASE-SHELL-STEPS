@@ -56,5 +56,17 @@ function listAuthorsOfFilesAcrossBranches() {
     done
 
     cat fileAuthors.tmp | csvlook
+}
 
+branch_exists() {
+  local branch_name="$1"
+  
+  # Check if the branch exists by using "git show-ref" and "grep"
+  if git show-ref --verify --quiet "refs/heads/$branch_name"; then
+    echo "Branch '$branch_name' exists."
+    return 0  # Branch exists
+  else
+    echo "Branch '$branch_name' does not exist."
+    return 1  # Branch does not exist
+  fi
 }
