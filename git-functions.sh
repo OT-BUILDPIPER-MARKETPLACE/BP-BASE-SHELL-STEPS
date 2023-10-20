@@ -22,7 +22,7 @@ function findConflictingFiles() {
     git merge -q "$SRC_BRANCH" 1> /dev/null
 
     conflicts=$(git diff --name-only --diff-filter=U)
-    if [ -n "${CONFLICTING_FILES}" ]; then
+    if [ -n "${conflicts}" ]; then
         git merge --abort
     fi
     git checkout -q "${TGT_BRANCH}"
@@ -39,12 +39,22 @@ function getLastAuthorOfFile() {
     git log -1 --pretty=format:"%an" "${FILE}"
 }
 
-function getLastAuthorOfFiles() {
-    BRANCH="$1"
-    FILES="$2"
-    for FILE in "${FILES[@]}"
+function listAuthorsOfFilesAcrossBranches() {
+    SRC_BRANCH="$1"
+    TGT_BRANCH="$2"
+    CONFLICTING_FILES="$3"
+    echo File,${SRC_BRANCH},${TGT_BRANCH} > fileAuthors.tmp
+    # echo "Conflicting files variable: [${CONFLICTING_FILES}]"
+    for FILE in ${CONFLICTING_FILES}
     do
-        author=$(getLastAuthorOfFile "${BRANCH}" "${FILE}")
-        echo "${FILE}: ${author}"
+        # echo "Processing file [${FILE}]"
+        src_branch_author=`getLastAuthorOfFile "${SRC_BRANCH}" "${FILE}"`
+        # echo "Source branch Author: [${src_branch_author}]"
+        tgt_branch_author=`getLastAuthorOfFile "${TGT_BRANCH}" "${FILE}"`
+        # echo "Target branch Author: [${tgt_branch_author}]"
+        echo "$FILE,${src_branch_author},${tgt_branch_author}" >> fileAuthors.tmp
     done
+
+    cat fileAuthors.tmp | csvlook
+
 }
