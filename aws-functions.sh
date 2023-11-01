@@ -58,3 +58,15 @@ function createRole() {
     POLICY_DOCUMENT="$2"
     aws iam create-role --role-name "${ROLE_NAME}" --no-paginate --assume-role-policy-document "file://${POLICY_DOCUMENT}"
 }
+
+function createAssumeRole() {
+    ROLE_ARN=$1
+    ROLE_SESSION_NAME=$2
+
+	export $(printf "AWS_ACCESS_KEY_ID=%s AWS_SECRET_ACCESS_KEY=%s AWS_SESSION_TOKEN=%s" \
+	$(aws sts assume-role \
+	--role-arn ${ROLE_ARN} \
+	--role-session-name ${ROLE_SESSION_NAME} \
+	--query "Credentials.[AccessKeyId,SecretAccessKey,SessionToken]" \
+	--output text))
+}
