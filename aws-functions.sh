@@ -61,12 +61,11 @@ function createRole() {
 
 function getAssumeRole() {
     ROLE_ARN=$1
-    ROLE_SESSION_NAME=$2
 
     export $(printf "AWS_ACCESS_KEY_ID=%s AWS_SECRET_ACCESS_KEY=%s AWS_SESSION_TOKEN=%s" \
 	$(aws sts assume-role \
 	--role-arn ${ROLE_ARN} \
-	--role-session-name ${ROLE_SESSION_NAME} \
+	--role-session-name default \
 	--query "Credentials.[AccessKeyId,SecretAccessKey,SessionToken]" \
 	--output text))
 }
