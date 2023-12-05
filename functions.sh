@@ -61,4 +61,21 @@ function saveTaskStatus() {
   fi
 }
 
+function decrypt_credentials() {
+    local fernet_key="$1"
+    local encrypted_value="$2"
 
+    python3 -c "
+from cryptography.fernet import Fernet
+
+fernet_key = '$fernet_key'
+f = Fernet(fernet_key.encode('utf-8'))
+encrypted_value = b'$encrypted_value'
+
+try:
+    decrypted_value = f.decrypt(encrypted_value)
+    print(decrypted_value.decode())
+except Exception as e:
+    print(f'Decryption error: {e}')
+"
+}
