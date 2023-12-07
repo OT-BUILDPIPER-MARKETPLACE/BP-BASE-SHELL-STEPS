@@ -61,7 +61,7 @@ function saveTaskStatus() {
   fi
 }
 
-function decrypt_credentials() {
+function getDecryptedCredential() {
     local fernet_key="$1"
     local encrypted_value="$2"
 
@@ -79,3 +79,102 @@ except Exception as e:
     print(f'Decryption error: {e}')
 "
 }
+
+function passwordStrengthChecker() {
+    local password="$1"
+    local len=${#password}
+
+    if [ "${#password}" -ge 8 ] &&  [[ $password == *[A-Za-z]* ]] &&  [[ $password == *[0-9]* ]] && [[ $password == *['#?!@$\ %^\&*-']* ]]
+    then
+      logInfoMessage ''
+    else
+      logErrorMessage "Weak password. Please ensure the password meets the criteria: at least 8 characters, one uppercase letter, one lowercase letter, one digit, and one special character."
+      exit 1
+    fi
+}
+
+function validDBname() {
+    local db_name="$1"
+
+    # Check if the database name is not empty
+    if [ -z "$db_name" ]; then
+        logErrorMessage "Database name cannot be empty."
+        exit 1
+    fi
+
+    # Check if the database name contains invalid characters
+    if echo "$db_name" | grep -q -E '[^a-zA-Z0-9_\-]'; then
+        logErrorMessage "Invalid characters in the database name. Only alphanumeric characters, underscore (_), and hyphen (-) are allowed."
+        exit 1
+    fi
+}
+
+function getEncryptedCredential() {
+    local credentialManagement="$1"
+    local credentialKey="$2"
+
+    echo "$(echo "$credentialManagement" | jq -r ".$credentialKey")"
+}
+
+function mysqlcheckDatabaseConnection() {
+    local username="$1"
+    local password="$2"
+    local host="$3"
+
+    mysql -u "$username" -p"$password" -h "$host" -e "SELECT 1;" || {
+        logErrorMessage "Failed to login to the database server. Check your credentials and connection."
+        exit 1
+    }
+}
+
+function mysqlcreateDatabase() {
+    local username="$1"
+    local password="$2"
+    local host="$3"
+    local dbName="$4"
+
+    mysql -u "$username" -p"$password" -h "$host" -e "CREATE DATABASE $dbName;" || {
+        logErrorMessage "Failed to create the database."
+        exit 1
+    }
+}
+
+function mysqlcreateUser() {
+    local username="$1"
+    local password="$2"
+    local host="$3"
+    local dbName="$4"
+    local userName="$5"
+    local userPassword="$6"
+
+    mysql -u "$username" -p"$password" -h "$host" -e "CREATE USER '$userName'@'$host' IDENTIFIED BY '$userPassword';" || {
+        logErrorMessage "Failed to create the user [$userName]."
+        exit 1
+    }
+}
+
+function mysqlgrantPrivileges() {
+    local username="$1"
+    local password="$2"
+    local host="$3"
+    local dbName="$4"
+    local userName="$5"
+
+    mysql -u "$username" -p"$password" -h "$host" -e "GRANT ALL PRIVILEGES ON $dbName.* TO '$userName'@'$host'; FLUSH PRIVILEGES;" || {
+        logErrorMessage "Failed to give privileges to the user [$userName]."
+        exit 1
+    }
+}
+
+function mysqlcheckUserPrivileges() {
+    local username="$1"
+    local password="$2"
+    local host="$3"
+    local userName="$4"
+
+    mysql -u "$username" -p"$password" -h "$host" -e "SHOW GRANTS FOR '$userName'@'$host';" || {
+        logErrorMessage "Failed to check privileges for the user [$userName]."
+        exit 1
+    }
+}
+
