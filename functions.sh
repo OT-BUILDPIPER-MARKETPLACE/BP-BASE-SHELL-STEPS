@@ -84,6 +84,11 @@ function passwordStrengthChecker() {
     local password="$1"
     local len=${#password}
 
+    if [ -z "$password" ]; then
+      logErrorMessage "password cannot be empty."
+      exit 1
+    fi
+
     if [ "${#password}" -ge 8 ] &&  [[ $password == *[A-Za-z]* ]] &&  [[ $password == *[0-9]* ]] && [[ $password == *['#?!@$\ %^\&*-']* ]]
     then
       logInfoMessage ''
@@ -97,14 +102,30 @@ function validDBname() {
     local db_name="$1"
     
     if [ -z "$db_name" ]; then
-        echo "Database name cannot be empty."
+        logErrorMessage "Database name cannot be empty."
         exit 1
     fi
     
     if [[ "$db_name" =~ ^[a-zA-Z0-9_]+$ ]]; then
-        echo "vaild"
+        logInfoMessage ""
     else
-        echo "Invalid characters in the database name [$db_name]. Only alphanumeric characters (a-zA-Z), digits (1), underscore (_) are allowed."
+        logErrorMessage "Invalid characters in the database name [$db_name]. Only alphanumeric characters (a-zA-Z), digits (1), underscore (_) are allowed."
+        exit 1
+    fi
+}
+
+function validDBusername() {
+    local username="$1"
+    
+    if [ -z "$username" ]; then
+        logErrorMessage "Username name cannot be empty."
+        exit 1
+    fi
+    
+    if [[ "$username" =~ ^[a-zA-Z0-9_]+$ ]]; then
+        logInfoMessage ""
+    else
+        logErrorMessage "Invalid characters in the username [$username]. Only alphanumeric characters (a-zA-Z), digits (1), underscore (_) are allowed."
         exit 1
     fi
 }
