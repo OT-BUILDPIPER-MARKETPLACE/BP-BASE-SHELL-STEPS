@@ -132,8 +132,9 @@ function validDBusername() {
 function getEncryptedCredential() {
     local credentialManagement="$1"
     local credentialKey="$2"
-
-    echo "$(echo "$credentialManagement" | jq -r ".$credentialKey")"
+    
+    encrypted_value=$(echo "$credentialManagement" | jq -r ".$credentialKey")
+    echo "$encrypted_value"
 }
 
 function mysqlcheckDatabaseConnection() {
