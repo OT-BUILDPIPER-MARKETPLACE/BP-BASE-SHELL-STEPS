@@ -91,7 +91,7 @@ function passwordStrengthChecker() {
 
     if [ "${#password}" -ge 8 ] &&  [[ $password == *[A-Za-z]* ]] &&  [[ $password == *[0-9]* ]] && [[ $password == *['#?!@$\ %^\&*-']* ]]
     then
-      logInfoMessage ''
+      true
     else
       logErrorMessage "Weak password. Please ensure the password meets the criteria: at least 8 characters, one uppercase letter, one lowercase letter, one digit, and one special character."
       exit 1
@@ -107,7 +107,7 @@ function validDBname() {
     fi
     
     if [[ "$db_name" =~ ^[a-zA-Z0-9_]+$ ]]; then
-        logInfoMessage ""
+        true
     else
         logErrorMessage "Invalid characters in the database name [$db_name]. Only alphanumeric characters (a-zA-Z), digits (1), underscore (_) are allowed."
         exit 1
@@ -123,7 +123,7 @@ function validDBusername() {
     fi
     
     if [[ "$username" =~ ^[a-zA-Z0-9_]+$ ]]; then
-        logInfoMessage ""
+        true
     else
         logErrorMessage "Invalid characters in the username [$username]. Only alphanumeric characters (a-zA-Z), digits (1), underscore (_) are allowed."
         exit 1
