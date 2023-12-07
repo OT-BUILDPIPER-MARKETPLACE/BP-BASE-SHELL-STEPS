@@ -82,7 +82,6 @@ except Exception as e:
 
 function passwordStrengthChecker() {
     local password="$1"
-    local len=${#password}
 
     if [ -z "$password" ]; then
       logErrorMessage "password cannot be empty."
