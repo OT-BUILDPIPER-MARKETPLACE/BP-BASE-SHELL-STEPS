@@ -95,16 +95,16 @@ function passwordStrengthChecker() {
 
 function validDBname() {
     local db_name="$1"
-
-    # Check if the database name is not empty
+    
     if [ -z "$db_name" ]; then
-        logErrorMessage "Database name cannot be empty."
+        echo "Database name cannot be empty."
         exit 1
     fi
-
-    # Check if the database name contains invalid characters
-    if echo "$db_name" | grep -q -E '[^a-zA-Z0-9_\-]'; then
-        logErrorMessage "Invalid characters in the database name. Only alphanumeric characters, underscore (_), and hyphen (-) are allowed."
+    
+    if [[ "$db_name" =~ ^[a-zA-Z0-9_]+$ ]]; then
+        echo "vaild"
+    else
+        echo "Invalid characters in the database name [$db_name]. Only alphanumeric characters (a-zA-Z), digits (1), underscore (_) are allowed."
         exit 1
     fi
 }
