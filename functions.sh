@@ -137,16 +137,12 @@ function getEncryptedCredential() {
     echo "$encrypted_value"
 }
 
-function mysqlFilterWarning() {
-    sed '/mysql: \[Warning\] Using a password on the command line interface can be insecure\./d'
-}
-
 function mysqlcheckDatabaseConnection() {
     local username="$1"
     local password="$2"
     local host="$3"
-
-    mysql -u "$username" -p"$password" -h "$host" -e "SELECT 1;" 2> >(mysqlFilterWarning) || {
+    export MYSQL_PWD="$password"
+    mysql -u "$username" -h "$host" -e "SELECT 1;"  || {
         logErrorMessage "Failed to login to the database server. Check your credentials and connection."
         exit 1
     }
@@ -158,8 +154,9 @@ function mysqlcreateDatabase() {
     local password="$2"
     local host="$3"
     local dbName="$4"
+    export MYSQL_PWD="$password"
 
-    mysql -u "$username" -p"$password" -h "$host" -e "CREATE DATABASE $dbName;" 2> >(mysqlFilterWarning) || {
+    mysql -u "$username"  -h "$host" -e "CREATE DATABASE $dbName;"  || {
         logErrorMessage "Failed to create the database."
         exit 1
     }
@@ -172,8 +169,9 @@ function mysqlcreateUser() {
     local dbName="$4"
     local userName="$5"
     local userPassword="$6"
+    export MYSQL_PWD="$password"
 
-    mysql -u "$username" -p"$password" -h "$host" -e "CREATE USER '$userName'@'$host' IDENTIFIED BY '$userPassword';" 2> >(mysqlFilterWarning) || {
+    mysql -u "$username"  -h "$host" -e "CREATE USER '$userName'@'$host' IDENTIFIED BY '$userPassword';"  || {
         logErrorMessage "Failed to create the user [$userName]."
         exit 1
     }
@@ -185,8 +183,9 @@ function mysqlgrantPrivileges() {
     local host="$3"
     local dbName="$4"
     local userName="$5"
+    export MYSQL_PWD="$password"
 
-    mysql -u "$username" -p"$password" -h "$host" -e "GRANT ALL PRIVILEGES ON $dbName.* TO '$userName'@'$host'; FLUSH PRIVILEGES;" 2> >(mysqlFilterWarning) || {
+    mysql -u "$username"  -h "$host" -e "GRANT ALL PRIVILEGES ON $dbName.* TO '$userName'@'$host'; FLUSH PRIVILEGES;"  || {
         logErrorMessage "Failed to give privileges to the user [$userName]."
         exit 1
     }
@@ -197,8 +196,9 @@ function mysqlcheckUserPrivileges() {
     local password="$2"
     local host="$3"
     local userName="$4"
+    export MYSQL_PWD="$password"
 
-    mysql -u "$username" -p"$password" -h "$host" -e "SHOW GRANTS FOR '$userName'@'$host';" 2> >(mysqlFilterWarning) || {
+    mysql -u "$username"  -h "$host" -e "SHOW GRANTS FOR '$userName'@'$host';"  || {
         logErrorMessage "Failed to check privileges for the user [$userName]."
         exit 1
     }
