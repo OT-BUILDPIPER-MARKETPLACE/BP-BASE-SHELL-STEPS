@@ -37,6 +37,11 @@ function getDockerfilePath() {
   echo "$DOCKERFILE_ENTRY"
 }
 
+function getGitBranch() {
+  GIT_BRANCH_NAME=$(jq -r .git_repo.branch_name  < /bp/data/environment_build)
+  echo "$GIT_BRANCH_NAME"
+}
+
 function saveTaskStatus() {
   TASK_STATUS="$1"
   ACTIVITY_SUB_TASK_CODE="$2"  
