@@ -47,6 +47,11 @@ function getProjectEnv() {
   getNthTextInALine "$PROJECT_ENV_NAME" : 1
 }
 
+function getServiceName() {
+  PROJECT_SVC_NAME=$(jq -r .component.name  < /bp/data/environment_build)
+  getNthTextInALine "$PROJECT_SVC_NAME" : 1
+}
+
 function saveTaskStatus() {
   TASK_STATUS="$1"
   ACTIVITY_SUB_TASK_CODE="$2"  
