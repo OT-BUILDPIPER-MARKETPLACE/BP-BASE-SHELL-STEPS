@@ -42,6 +42,11 @@ function getGitBranch() {
   echo "$GIT_BRANCH_NAME"
 }
 
+function getGitUrl() {
+  GIT_BRANCH_NAME=$(jq -r .git_repo.git_url  < /bp/data/environment_build)
+  echo "$GIT_BRANCH_NAME"
+}
+
 function saveTaskStatus() {
   TASK_STATUS="$1"
   ACTIVITY_SUB_TASK_CODE="$2"  
