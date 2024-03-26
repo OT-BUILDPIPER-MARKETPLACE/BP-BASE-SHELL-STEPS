@@ -67,6 +67,11 @@ function getGitCommitSha() {
   echo "$Git_Commit_Sha"
 }
 
+function getGitCommitMsg() {
+  Git_Commit_Msg=$(jq -r .build_info.commit_msg < /bp/data/deploy_stateless_app)
+  echo "$Git_Commit_Msg"
+}
+
 function getDeploymentGitBranch() {
   Deployment_Git_branch=$(jq -r .build_info.git_branch < /bp/data/deploy_stateless_app)
   echo "$Deployment_Git_branch"
