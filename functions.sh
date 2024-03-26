@@ -47,6 +47,42 @@ function getGitUrl() {
   echo "$GIT_BRANCH_NAME"
 }
 
+function getDeploymentTimestamp() {
+  Deployment_Timestamp=$(jq -r .build_info.deployment_trigger_time  < /bp/data/deploy_stateless_app)
+  echo "$Deployment_Timestamp"
+}
+
+function getDeploymentUser() {
+  Deployment_User=$(jq -r .build_info.user  < /bp/data/deploy_stateless_app)
+  echo "$Deployment_User"
+}
+
+function getDeploymentImage() {
+  Deployment_Image=$(jq -r '.addition_meta_data.environment_variables.envs_list[] | select(.env_key == "image.url") | .env_value'  < /bp/data/deploy_stateless_app)
+  echo "$Deployment_Image"
+}
+
+function getGitCommitSha() {
+  Git_Commit_Sha=$(jq -r .build_info.commit_sha < /bp/data/deploy_stateless_app)
+  echo "$Git_Commit_Sha"
+}
+
+function getDeploymentGitBranch() {
+  Deployment_Git_branch=$(jq -r .build_info.git_branch < /bp/data/deploy_stateless_app)
+  echo "$Deployment_Git_branch"
+}
+
+function getNewrelicGuid() {
+  Newrelic_Guid=$(jq -r '.addition_meta_data.environment_variables.envs_list[] | select(.env_key == "newrelic_entity_guid") | .env_value' < /bp/data/deploy_stateless_app)
+  echo "$Newrelic_Guid"
+}
+
+
+function getDeploymentGitUrl() {
+  Deployment_Git_Url=$(jq -r .build_info.git_url < /bp/data/deploy_stateless_app)
+  echo "$Deployment_Git_Url"
+}
+
 function saveTaskStatus() {
   TASK_STATUS="$1"
   ACTIVITY_SUB_TASK_CODE="$2"  
