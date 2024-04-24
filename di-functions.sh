@@ -10,7 +10,7 @@ function sendDIData() {
     DATA_FILE=$1
 
 
-    response=$(curl -X POST -H "Content-Type: application/json" -d "{\"email\": \"$USER_NAME\", \"password\": \"$PASSWORD\"}" ${DI_SERVER}/api/v1/user/login/)
+    response=$(curl -X POST -H "Content-Type: application/json" -d "{\"email\": \"$USER_NAME\", \"password\": \"$PASSWORD\"}" ${BP_API_URL}/api/v1/user/login/)
     TOKEN="$(echo $response | jq -r .access)"
     # Check if TOKEN is empty
     if [ -z "$TOKEN" ]; then
