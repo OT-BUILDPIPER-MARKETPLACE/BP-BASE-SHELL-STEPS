@@ -13,7 +13,7 @@ function sendDIData() {
     local PASSWORD=$4
     echo "Buildpiper api url is : $BP_API_URL"
     echo "user name is : $USER_NAME"
-
+    echo ${BP_API_URL}/api/v1/user/login/
     response=$(curl -X POST -H "Content-Type: application/json" -d "{\"email\": \"$USER_NAME\", \"password\": \"$PASSWORD\"}" ${BP_API_URL}/api/v1/user/login/)
     TOKEN="$(echo $response | jq -r .access)"
     echo "token $TOKEN"
