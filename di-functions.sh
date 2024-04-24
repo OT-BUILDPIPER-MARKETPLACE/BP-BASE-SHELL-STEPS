@@ -8,10 +8,15 @@ function generateDIDataJson() {
 
 function sendDIData() {
     DATA_FILE=$1
-
+    local BP_API_URL=$2
+    local USER_NAME=$3
+    local PASSWORD=$4
+    echo "Buildpiper api url is : $BP_API_URL"
+    echo "user name is : $USER_NAME"
 
     response=$(curl -X POST -H "Content-Type: application/json" -d "{\"email\": \"$USER_NAME\", \"password\": \"$PASSWORD\"}" ${BP_API_URL}/api/v1/user/login/)
     TOKEN="$(echo $response | jq -r .access)"
+    echo "token $TOKEN"
     # Check if TOKEN is empty
     if [ -z "$TOKEN" ]; then
     echo "Token not found. Exiting..."
