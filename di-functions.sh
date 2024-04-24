@@ -8,9 +8,21 @@ function generateDIDataJson() {
 
 function sendDIData() {
     DATA_FILE=$1
-    DI_SERVER="$2"
 
-    curl -d "@${DATA_FILE}" -X POST  -H "Content-Type: application/json"  ${DI_SERVER}/api/v1/maturity_dashboard/deploy_insights_post_data/
+
+    response=$(curl -X POST -H "Content-Type: application/json" -d "{\"email\": \"$USER_NAME\", \"password\": \"$PASSWORD\"}" ${DI_SERVER}/api/v1/user/login/)
+    TOKEN="$(echo $response | jq -r .access)"
+    # Check if TOKEN is empty
+    if [ -z "$TOKEN" ]; then
+    echo "Token not found. Exiting..."
+    exit 1
+    fi
+
+    # Make POST request with token
+    curl -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d @${DATA_FILE} ${DI_SERVER}/api/v1/maturity_dashboard/deploy_insights_post_data/
+
+
+
 }
 
 
@@ -23,6 +35,9 @@ fetch_sub_tasks() {
     for ((i=0; i<sub_tasks_length; i++)); do
         local feature_ticket_id=$(jq -r --argjson i "$i" '.["sub-tasks"][$i].key' "$json_file")
         local description=$(jq -r --argjson i "$i" '.["sub-tasks"][$i].fields.status.description' "$json_file")
+        if [ -z "$description" ]; then
+            description="NA"
+        fi
 
         local json_object="{ \"feature_ticket_id\": \"${feature_ticket_id}\", \"description\": \"${description}\" }"
         json_objects+=("$json_object")
