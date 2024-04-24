@@ -19,7 +19,7 @@ function sendDIData() {
     fi
 
     # Make POST request with token
-    curl -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d @${DATA_FILE} ${DI_SERVER}/api/v1/maturity_dashboard/deploy_insights_post_data/
+    curl -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d @${DATA_FILE} ${BP_API_URL}/api/v1/maturity_dashboard/deploy_insights_post_data/
 
 
 
