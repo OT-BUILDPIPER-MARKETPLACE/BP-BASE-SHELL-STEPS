@@ -10,5 +10,5 @@ function sendMIData() {
     DATA_FILE=$1
     MI_SERVER="$2"
 
-    curl -d "@${DATA_FILE}" -X POST  -H "Content-Type: application/json"  ${MI_SERVER}/api/v1/default/maturity_metrices/
+    curl -d "@${DATA_FILE}" -X POST  -H "Content-Type: application/json"  ${MI_SERVER}/api/v1/maturity_dashboard/maturity_metrices/
 }
