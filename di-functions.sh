@@ -13,7 +13,6 @@ function sendDIData() {
     local PASSWORD=$4
     echo "Buildpiper api url is : $BP_API_URL"
     echo "user name is : $USER_NAME"
-    echo ${BP_API_URL}/api/v1/user/login/
     response=$(curl -X POST -H "Content-Type: application/json" -d "{\"email\": \"$USER_NAME\", \"password\": \"$PASSWORD\"}" ${BP_API_URL}/api/v1/user/login/)
     TOKEN="$(echo $response | jq -r .access)"
     echo "token $TOKEN"
@@ -25,6 +24,7 @@ function sendDIData() {
 
     # Make POST request with token
     curl -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d @${DATA_FILE} ${BP_API_URL}/api/v1/maturity_dashboard/deploy_insights_post_data/
+    if [ $? == 0]
 
 
 
@@ -77,8 +77,14 @@ fetch_services() {
 }
 fetch_change_ticket_id() {
     local json_file=$1
-    local change_ticket_id=$(jq -r '.["stage.create ticket.job.job_1.jira_id.key"]' "$json_file")
-    
+    local jira_ops=$2
+    if [ "$jira_ops"=="true"]
+    then 
+       local change_ticket_id=$(jq -r '.["stage.create ticket.job.job_1.jira_id.key"]' "$json_file")
+    else 
+
+      local change_ticket_id=$(jq -r '.["stage.Jira Ticket Create.job.job_1.jira_id.key"]' "$json_file")
+    fi
     echo "$change_ticket_id"
 
 }
