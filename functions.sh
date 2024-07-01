@@ -37,6 +37,11 @@ function getDockerfilePath() {
   echo "$DOCKERFILE_ENTRY"
 }
 
+function getGitRepo() {
+  GIT_REPO_URL=$(jq -r .git_repo.git_url  < /bp/data/environment_build)
+  echo "$GIT_REPO_URL"
+}
+
 function getGitBranch() {
   GIT_BRANCH_NAME=$(jq -r .git_repo.branch_name  < /bp/data/environment_build)
   echo "$GIT_BRANCH_NAME"
