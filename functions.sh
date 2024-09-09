@@ -82,9 +82,9 @@ function getDeploymentGitBranch() {
   echo "$Deployment_Git_branch"
 }
 
-function getNewrelicGuid() {
-  Newrelic_Guid=$(jq -r '.addition_meta_data.environment_variables.envs_list[] | select(.env_key == "newrelic_entity_guid") | .env_value' < /bp/data/deploy_stateless_app)
-  echo "$Newrelic_Guid"
+function getNewrelicApm() {
+  Newrelic_apm=$(jq -r '.addition_meta_data.environment_variables.envs_list[] | select(.env_key == "APM_NAME") | .env_value' < /bp/data/deploy_stateless_app)
+  echo "$Newrelic_apm"
 }
 
 
