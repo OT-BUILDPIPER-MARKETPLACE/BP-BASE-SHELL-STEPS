@@ -70,3 +70,13 @@ branch_exists() {
     return 1  # Branch does not exist
   fi
 }
+
+# Capture Git Commit Hash
+capture_commit_hash() {
+  git log -n 1 --pretty=format:%H
+}
+
+# Capture Branch Name
+capture_branch_name() {
+  git rev-parse --abbrev-ref HEAD
+}
