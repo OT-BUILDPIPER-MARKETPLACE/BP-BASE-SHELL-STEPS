@@ -3,6 +3,7 @@
 GREEN="32m"
 RED="31m"
 YELLOW="1;33m"
+CYAN="36m"  # Color for debugging
 
 COLOR_START="\e["
 COLOR_END="\e[0m"
@@ -31,4 +32,11 @@ function logErrorMessage() {
 function logWarningMessage() {
     MESSAGE="$1"
     logColoredMessage "${YELLOW}" WARNING "${MESSAGE}"
+}
+
+# Function to log debug messages if DEBUG is enabled
+function logDebugMessage() {
+    if [[ "$(echo "$DEBUG" | tr '[:upper:]' '[:lower:]')" == "true" ]]; then
+        logColoredMessage "${CYAN}" DEBUG "$1"
+    fi
 }
