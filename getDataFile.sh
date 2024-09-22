@@ -1,7 +1,8 @@
 #!/bin/bash
 
 SOURCE_FILE_PATH="/bp/data/environment_build"
-# SOURCE_FILE_PATH=$1
+# SOURCE_DEPLOY_FILE_PATH="/bp/data/deploy_stateless_app"
+SOURCE_DEPLOY_FILE_PATH=$1
 
 # Function to get the dcoker image name
 function getImageName() {
@@ -106,4 +107,18 @@ function getDockerCleanupRetention() {
 # Function to get the environment variables
 function getEnvVariables() {
   jq -r '.build_detail.env_variables | to_entries | .[] | "\(.key)=\(.value)"' < "${SOURCE_FILE_PATH}"
+}
+
+#-----------------------------------------Deploy ENVS-------------------------------------------------
+
+# Function to get the service account name
+function getServiceAccountName() {
+  SERVICE_ACCOUNT_NAME=$(jq -r '.k8s_manifest[] | select(.k8s_manifest_type == "serviceaccount") | .metadata.name' < "$SOURCE_DEPLOY_FILE_PATH")
+  echo "Service Account Name: $SERVICE_ACCOUNT_NAME"
+}
+
+# Function to get the container image from the deployment
+function getContainerImage() {
+  CONTAINER_IMAGE=$(jq -r '.k8s_manifest[] | select(.k8s_manifest_type == "deployment") | .spec.template.spec.containers[0].image' < "$SOURCE_DEPLOY_FILE_PATH")
+  echo "$CONTAINER_IMAGE"
 }
