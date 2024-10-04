@@ -264,5 +264,3 @@ function getServiceName() {
   PROJECT_SVC_NAME=$(jq -r .component.name  < /bp/data/environment_build)
   getNthTextInALine "$PROJECT_SVC_NAME" : 1
 }
-
-
