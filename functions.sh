@@ -265,7 +265,7 @@ function getServiceName() {
   getNthTextInALine "$PROJECT_SVC_NAME" : 1
 }
 
-jsonOutput() {
+function jsonOutput() {
     file_name="$1"
     output_vars="$2"
 
