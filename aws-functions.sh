@@ -62,10 +62,36 @@ function createRole() {
 function getAssumeRole() {
     ROLE_ARN=$1
 
-    export $(printf "AWS_ACCESS_KEY_ID=%s AWS_SECRET_ACCESS_KEY=%s AWS_SESSION_TOKEN=%s" \
-	$(aws sts assume-role \
-	--role-arn ${ROLE_ARN} \
-	--role-session-name default \
-	--query "Credentials.[AccessKeyId,SecretAccessKey,SessionToken]" \
-	--output text))
+    creds=$(aws sts assume-role \
+        --role-arn "${ROLE_ARN}" \
+        --role-session-name "default" \
+        --query "Credentials.[AccessKeyId,SecretAccessKey,SessionToken]" \
+        --output text)
+
+    export $(printf "AWS_ACCESS_KEY_ID=%s AWS_SECRET_ACCESS_KEY=%s AWS_SESSION_TOKEN=%s" $creds)
+
+    echo "AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID"
+    echo "AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY"
+    echo "AWS_SESSION_TOKEN: $AWS_SESSION_TOKEN"
+}
+
+function set_aws_credentials() {
+    CREDENTIAL_MANAGEMENT_NAME=$1
+    
+    aws_creds=$(getEncryptedCredential "$CREDENTIAL_MANAGEMENT" "$CREDENTIAL_MANAGEMENT_NAME.CREDENTIAL_KEY_VALUE_PAIR")
+
+    aws_access_key=$(echo $aws_creds | sed "s/'/\"/g" | jq -r '.aws_access_key')
+    aws_secret_access_key=$(echo $aws_creds | sed "s/'/\"/g" | jq -r '.aws_secret_access_key')
+
+    export AWS_ACCESS_KEY_ID="$aws_access_key"
+    export AWS_SECRET_ACCESS_KEY="$aws_secret_access_key"
+    }
+
+function check_aws_authentication() {
+    if ! aws sts get-caller-identity &>/dev/null; then
+        logErrorMessage "Failed to authenticate with AWS CLI. Please configure AWS CLI authentication."
+        exit 1
+    else
+        logInfoMessage "Successfully authenticated with AWS CLI."
+    fi
 }
