@@ -95,6 +95,3 @@ function check_aws_authentication() {
         logInfoMessage "Successfully authenticated with AWS CLI."
     fi
 }
-
-
-
