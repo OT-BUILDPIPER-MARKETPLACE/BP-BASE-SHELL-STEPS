@@ -138,4 +138,3 @@ function create_ec2_instance() {
 }
 
 
-
