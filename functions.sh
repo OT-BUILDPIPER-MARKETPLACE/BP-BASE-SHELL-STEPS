@@ -37,6 +37,11 @@ function getDockerfilePath() {
   echo "$DOCKERFILE_ENTRY"
 }
 
+function getGitRepo() {
+  GIT_REPO_URL=$(jq -r .git_repo.git_url  < /bp/data/environment_build)
+  echo "$GIT_REPO_URL"
+}
+
 function getGitBranch() {
   GIT_BRANCH_NAME=$(jq -r .git_repo.branch_name  < /bp/data/environment_build)
   echo "$GIT_BRANCH_NAME"
@@ -77,9 +82,9 @@ function getDeploymentGitBranch() {
   echo "$Deployment_Git_branch"
 }
 
-function getNewrelicGuid() {
-  Newrelic_Guid=$(jq -r '.addition_meta_data.environment_variables.envs_list[] | select(.env_key == "newrelic_entity_guid") | .env_value' < /bp/data/deploy_stateless_app)
-  echo "$Newrelic_Guid"
+function getNewrelicApm() {
+  Newrelic_apm=$(jq -r '.addition_meta_data.environment_variables.envs_list[] | select(.env_key == "APM_NAME") | .env_value' < /bp/data/deploy_stateless_app)
+  echo "$Newrelic_apm"
 }
 
 
