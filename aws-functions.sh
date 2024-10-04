@@ -62,17 +62,20 @@ function createRole() {
 function getAssumeRole() {
     ROLE_ARN=$1
 
-    creds=$(aws sts assume-role \
-        --role-arn "${ROLE_ARN}" \
-        --role-session-name "default" \
-        --query "Credentials.[AccessKeyId,SecretAccessKey,SessionToken]" \
-        --output text)
+	role_output=$(aws sts assume-role --role-arn "$ROLE_ARN" --role-session-name default)
 
-    export $(printf "AWS_ACCESS_KEY_ID=%s AWS_SECRET_ACCESS_KEY=%s AWS_SESSION_TOKEN=%s" $creds)
+	if [ $? -ne 0 ]; then
+	  echo "Failed to assume role."
+	  exit 1
+	fi
 
-    export "AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID"
-    export "AWS_SECRET_ACCESS_KEY=AWS_SECRET_ACCESS_KEY"
-    export "AWS_SESSION_TOKEN=$AWS_SESSION_TOKEN"
+	AWS_ACCESS_KEY_ID=$(echo $role_output | jq -r '.Credentials.AccessKeyId')
+	AWS_SECRET_ACCESS_KEY=$(echo $role_output | jq -r '.Credentials.SecretAccessKey')
+	AWS_SESSION_TOKEN=$(echo $role_output | jq -r '.Credentials.SessionToken')
+
+	export AWS_ACCESS_KEY_ID
+	export AWS_SECRET_ACCESS_KEY
+	export AWS_SESSION_TOKEN
 }
 
 function set_aws_credentials() {
