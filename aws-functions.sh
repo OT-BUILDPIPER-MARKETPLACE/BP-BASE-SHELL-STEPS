@@ -62,17 +62,20 @@ function createRole() {
 function getAssumeRole() {
     ROLE_ARN=$1
 
-    creds=$(aws sts assume-role \
-        --role-arn "${ROLE_ARN}" \
-        --role-session-name "default" \
-        --query "Credentials.[AccessKeyId,SecretAccessKey,SessionToken]" \
-        --output text)
+	role_output=$(aws sts assume-role --role-arn "$ROLE_ARN" --role-session-name default)
 
-    export $(printf "AWS_ACCESS_KEY_ID=%s AWS_SECRET_ACCESS_KEY=%s AWS_SESSION_TOKEN=%s" $creds)
+	if [ $? -ne 0 ]; then
+	  echo "Failed to assume role :- $ROLE_ARN."
+	  exit 1
+	fi
 
-    echo "AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID"
-    echo "AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY"
-    echo "AWS_SESSION_TOKEN: $AWS_SESSION_TOKEN"
+	AWS_ACCESS_KEY_ID=$(echo $role_output | jq -r '.Credentials.AccessKeyId')
+	AWS_SECRET_ACCESS_KEY=$(echo $role_output | jq -r '.Credentials.SecretAccessKey')
+	AWS_SESSION_TOKEN=$(echo $role_output | jq -r '.Credentials.SessionToken')
+
+	export AWS_ACCESS_KEY_ID
+	export AWS_SECRET_ACCESS_KEY
+	export AWS_SESSION_TOKEN
 }
 
 function set_aws_credentials() {
@@ -95,3 +98,44 @@ function check_aws_authentication() {
         logInfoMessage "Successfully authenticated with AWS CLI."
     fi
 }
+
+function create_ec2_instance() {
+    AMI_ID="$1"
+    INSTANCE_TYPE="$2"
+    SSH_KEY_NAME="$3"
+    SUBNET_ID="$4"
+    SECURITY_GROUP_IDS="$5"
+    INSTANCE_COUNT="$6"
+    INSTANCE_NAME="$7"
+    BUILDX_ENABLE="$8"
+    TAG_SPECIFICATIONS="${9}"
+    USER_DATA="${10:-}"
+
+    EC2_CREATE_CMD="aws ec2 run-instances \
+    --image-id \"$AMI_ID\" \
+    --instance-type \"$INSTANCE_TYPE\" \
+    --key-name \"$SSH_KEY_NAME\" \
+    --subnet-id \"$SUBNET_ID\" \
+    --security-group-ids \"$SECURITY_GROUP_IDS\" \
+    --count \"$INSTANCE_COUNT\" \
+    --tag-specifications \"$TAG_SPECIFICATIONS\""
+
+    # Append user-data if provided
+    if [ -n "$USER_DATA" ]; then
+        EC2_CREATE_CMD="$EC2_CREATE_CMD --user-data \"$USER_DATA\""
+    fi
+
+    EC2_CREATE_OUTPUT=$(eval "$EC2_CREATE_CMD")
+
+    if [ $? -ne 0 ]; then
+        echo "Error creating EC2 instance."
+        echo "$EC2_CREATE_OUTPUT"
+        return 1  
+    fi
+
+    echo "$EC2_CREATE_OUTPUT" 
+    return 0  
+}
+
+
+
