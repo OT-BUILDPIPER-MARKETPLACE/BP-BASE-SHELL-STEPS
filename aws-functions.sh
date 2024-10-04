@@ -65,7 +65,7 @@ function getAssumeRole() {
 	role_output=$(aws sts assume-role --role-arn "$ROLE_ARN" --role-session-name default)
 
 	if [ $? -ne 0 ]; then
-	  echo "Failed to assume role."
+	  echo "Failed to assume role :- $ROLE_ARN."
 	  exit 1
 	fi
 
