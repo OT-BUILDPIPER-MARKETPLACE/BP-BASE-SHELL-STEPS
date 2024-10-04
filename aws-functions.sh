@@ -98,3 +98,44 @@ function check_aws_authentication() {
         logInfoMessage "Successfully authenticated with AWS CLI."
     fi
 }
+
+function create_ec2_instance() {
+    AMI_ID="$1"
+    INSTANCE_TYPE="$2"
+    SSH_KEY_NAME="$3"
+    SUBNET_ID="$4"
+    SECURITY_GROUP_IDS="$5"
+    INSTANCE_COUNT="$6"
+    INSTANCE_NAME="$7"
+    BUILDX_ENABLE="$8"
+    TAG_SPECIFICATIONS="${9}"
+    USER_DATA="${10:-}"
+
+    EC2_CREATE_CMD="aws ec2 run-instances \
+    --image-id \"$AMI_ID\" \
+    --instance-type \"$INSTANCE_TYPE\" \
+    --key-name \"$SSH_KEY_NAME\" \
+    --subnet-id \"$SUBNET_ID\" \
+    --security-group-ids \"$SECURITY_GROUP_IDS\" \
+    --count \"$INSTANCE_COUNT\" \
+    --tag-specifications \"$TAG_SPECIFICATIONS\""
+
+    # Append user-data if provided
+    if [ -n "$USER_DATA" ]; then
+        EC2_CREATE_CMD="$EC2_CREATE_CMD --user-data \"$USER_DATA\""
+    fi
+
+    EC2_CREATE_OUTPUT=$(eval "$EC2_CREATE_CMD")
+
+    if [ $? -ne 0 ]; then
+        echo "Error creating EC2 instance."
+        echo "$EC2_CREATE_OUTPUT"
+        return 1  
+    fi
+
+    echo "$EC2_CREATE_OUTPUT" 
+    return 0  
+}
+
+
+
