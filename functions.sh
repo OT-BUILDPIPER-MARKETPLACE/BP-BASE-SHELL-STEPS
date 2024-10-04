@@ -250,3 +250,20 @@ function mysqlcheckUserPrivileges() {
     }
 }
 
+jsonOutput() {
+    file_name="$1"
+    output_vars="$2"
+
+    file_content=""
+    if [[ -f "$file_name" ]]; then
+        file_content=$(<"$file_name")
+    fi
+    [[ "$file_content" != "["* ]] && file_content="[]"
+
+    updated_content=$(jq -c ". += [$output_vars]" <<< "$file_content")
+
+    echo "$updated_content" | jq "." > "$file_name"
+
+    echo "Job step response updated in: $file_name"
+}
+
