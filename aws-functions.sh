@@ -137,4 +137,58 @@ function create_ec2_instance() {
     return 0  
 }
 
+check_instance_status() {
+  local INSTANCE_ID="$1"
+  local INSTANCE_TYPE="$2"
 
+  logInfoMessage "Checking $INSTANCE_TYPE instance [ID: $INSTANCE_ID]."
+
+  INSTANCE_STATE=$(aws ec2 describe-instances --instance-ids "$INSTANCE_ID" --query "Reservations[].Instances[].State.Name" --output text)
+
+  if [[ "$INSTANCE_STATE" == "terminated" || "$INSTANCE_STATE" == "stopped" ]]; then
+    logInfoMessage "$INSTANCE_TYPE instance [ID: $INSTANCE_ID] is in $INSTANCE_STATE state. Skipping status check and moving on."
+    return 1  
+  fi
+
+  logInfoMessage "Waiting for $INSTANCE_TYPE instance [ID: $INSTANCE_ID] to be in 'running' state and pass status checks."
+
+  MAX_WAIT_TIME=600   # Maximum wait time in seconds (10 minutes)
+  SLEEP_INTERVAL=15   # Interval to check the status (15 seconds)
+  TOTAL_WAIT=0
+
+  while true; do
+    INSTANCE_STATE=$(aws ec2 describe-instances --instance-ids "$INSTANCE_ID" --query "Reservations[].Instances[].State.Name" --output text)
+    INSTANCE_STATUS_CHECK=$(aws ec2 describe-instance-status --instance-ids "$INSTANCE_ID" --query "InstanceStatuses[].InstanceStatus.Status" --output text)
+
+    logInfoMessage "$INSTANCE_TYPE instance [ID: $INSTANCE_ID] current state: $INSTANCE_STATE"
+    logInfoMessage "$INSTANCE_TYPE instance [ID: $INSTANCE_ID] status check: $INSTANCE_STATUS_CHECK"
+
+    if [ "$INSTANCE_STATE" = "running" ] && [ "$INSTANCE_STATUS_CHECK" = "ok" ]; then
+      logInfoMessage "$INSTANCE_TYPE instance [ID: $INSTANCE_ID] is now running and passed all status checks."
+      return 0 
+    fi
+
+    if [ "$TOTAL_WAIT" -ge "$MAX_WAIT_TIME" ]; then
+      logErrorMessage "Timeout reached for $INSTANCE_TYPE instance [ID: $INSTANCE_ID]. Not in 'running' state or did not pass status checks."
+      return 1  
+    fi
+
+    sleep $SLEEP_INTERVAL
+    TOTAL_WAIT=$((TOTAL_WAIT + SLEEP_INTERVAL))
+  done
+}
+
+terminate_instance() {
+  local INSTANCE_ID="$1"
+  local INSTANCE_TYPE="$2"
+
+  INSTANCE_STATE=$(aws ec2 describe-instances --instance-ids "$INSTANCE_ID" --query "Reservations[].Instances[].State.Name" --output text)
+
+  if [[ "$INSTANCE_STATE" != "terminated" && "$INSTANCE_STATE" != "stopped" ]]; then
+    logErrorMessage "Terminating $INSTANCE_TYPE instance [ID: $INSTANCE_ID]."
+    aws ec2 terminate-instances --instance-ids "$INSTANCE_ID"
+    logInfoMessage "$INSTANCE_TYPE instance [ID: $INSTANCE_ID] has been terminated."
+  else
+    logInfoMessage "$INSTANCE_TYPE instance [ID: $INSTANCE_ID] is already in $INSTANCE_STATE state. No need to terminate."
+  fi
+}
