@@ -265,7 +265,7 @@ function getServiceName() {
   getNthTextInALine "$PROJECT_SVC_NAME" : 1
 }
 
-function jsonOutput() {
+function jsonOutputWithoutArray() {
     file_name="$1"
     output_vars="$2"
 
@@ -276,6 +276,26 @@ function jsonOutput() {
     [[ "$file_content" != "["* ]] && file_content="[]"
 
     updated_content=$(jq -c ". += [$output_vars]" <<< "$file_content")
+
+    echo "$updated_content" | jq "." > "$file_name"
+
+    echo "Job step response updated in: $file_name"
+}
+
+function jsonOutput() {
+    file_name="$1"
+    output_vars="$2"
+
+    file_content=""
+    if [[ -f "$file_name" && -s "$file_name" ]]; then
+        file_content=$(<"$file_name")
+    fi
+
+    if [[ -n "$file_content" ]]; then
+        updated_content=$(jq -c --argjson vars "$output_vars" '. += [$vars]' <<< "$file_content")
+    else
+        updated_content="$output_vars"
+    fi
 
     echo "$updated_content" | jq "." > "$file_name"
 
