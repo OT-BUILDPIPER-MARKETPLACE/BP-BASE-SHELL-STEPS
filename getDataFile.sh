@@ -1,8 +1,7 @@
 #!/bin/bash
 
 SOURCE_FILE_PATH="/bp/data/environment_build"
-# SOURCE_DEPLOY_FILE_PATH="/bp/data/deploy_stateless_app"
-SOURCE_DEPLOY_FILE_PATH=$1
+SOURCE_DEPLOY_FILE_PATH="/bp/data/deploy_stateless_app" # correct format
 
 # Function to get the docker image name
 function getImageName() {
@@ -111,14 +110,32 @@ function getEnvVariables() {
 
 #-----------------------------------------Deploy ENVS-------------------------------------------------
 
-# Function to get the service account name
+# Function to get the deployment service account name
 function getServiceAccountName() {
-  SERVICE_ACCOUNT_NAME=$(jq -r '.k8s_manifest[] | select(.k8s_manifest_type == "serviceaccount") | .metadata.name' < "$SOURCE_DEPLOY_FILE_PATH")
-  echo "Service Account Name: $SERVICE_ACCOUNT_NAME"
+  DEPLOY_SERVICE_ACCOUNT_NAME=$(jq -r '.k8s_manifest[] | select(.k8s_manifest_type == "serviceaccount") | .metadata.name' < "$SOURCE_DEPLOY_FILE_PATH")
+  echo "$DEPLOY_SERVICE_ACCOUNT_NAME"
+}
+
+# Function to get the deployment service name
+function getDeploymentServiceName() {
+  DEPLOY_SERVICE_NAME=$(jq -r '.k8s_manifest[] | select(.k8s_manifest_type == "service") | .metadata.name' < "$SOURCE_DEPLOY_FILE_PATH")
+  echo "$DEPLOY_SERVICE_NAME"
+}
+
+# Function to get the deployment name
+function getDeploymentName() {
+  DEPLOYMENT_NAME=$(jq -r '.k8s_manifest[] | select(.k8s_manifest_type == "deployment") | .metadata.name' < "$SOURCE_DEPLOY_FILE_PATH")
+  echo "$DEPLOYMENT_NAME"
 }
 
 # Function to get the container image from the deployment
 function getContainerImage() {
   CONTAINER_IMAGE=$(jq -r '.k8s_manifest[] | select(.k8s_manifest_type == "deployment") | .spec.template.spec.containers[0].image' < "$SOURCE_DEPLOY_FILE_PATH")
   echo "$CONTAINER_IMAGE"
+}
+
+# Function to get the number of replicas from the deployment
+function getReplicas() {
+  REPLICAS=$(jq -r '.k8s_manifest[] | select(.k8s_manifest_type == "deployment") | .spec.replicas' < "$SOURCE_DEPLOY_FILE_PATH")
+  echo "Replicas: $REPLICAS"
 }
