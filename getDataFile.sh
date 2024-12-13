@@ -4,7 +4,7 @@ SOURCE_FILE_PATH="/bp/data/environment_build"
 # SOURCE_DEPLOY_FILE_PATH="/bp/data/deploy_stateless_app"
 SOURCE_DEPLOY_FILE_PATH=$1
 
-# Function to get the dcoker image name
+# Function to get the docker image name
 function getImageName() {
   BUILD_IMAGE_NAME=$(jq -r .build_detail.repository.name < "${SOURCE_FILE_PATH}")
   echo "$BUILD_IMAGE_NAME"
