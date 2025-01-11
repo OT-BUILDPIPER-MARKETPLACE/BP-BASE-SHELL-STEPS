@@ -1,7 +1,12 @@
 #!/bin/bash
 
 SOURCE_FILE_PATH="/bp/data/environment_build"
-SOURCE_DEPLOY_FILE_PATH="/bp/data/deploy_stateless_app" # correct format
+SOURCE_DEPLOY_FILE_PATH="/bp/data/deploy_stateless_app"
+SOURCE_POD_SHIFT_FILE_PATH="/bp/data/pod_shift"
+SOURCE_POD_SHIFT_FILE_PATH="/bp/data/pod_shift"
+
+
+# SOURCE_DEPLOY_FILE_PATH=$1
 
 # Function to get the docker image name
 function getImageName() {
@@ -138,4 +143,66 @@ function getContainerImage() {
 function getReplicas() {
   REPLICAS=$(jq -r '.k8s_manifest[] | select(.k8s_manifest_type == "deployment") | .spec.replicas' < "$SOURCE_DEPLOY_FILE_PATH")
   echo "Replicas: $REPLICAS"
+}
+
+# Function to get the deployment service account name
+function getDeploymentNamespace() {
+  DEPLOYMENT_NAMESPACE=$(jq -r '.k8s_manifest[] | select(.k8s_manifest_type == "serviceaccount") | .metadata.namespace' < "$SOURCE_DEPLOY_FILE_PATH")
+  echo "$DEPLOYMENT_NAMESPACE"
+}
+
+#-----------------------------------------POD SHIFT ENVS-------------------------------------------------
+
+# Function to get the Canary Status
+function canary_status() {
+  CANARY_STATUS=$(jq -r .canary < "$SOURCE_POD_SHIFT_FILE_PATH")
+  echo "$CANARY_STATUS"
+}
+
+# Function to get the Canary Deployment Strategy
+function canary_deployment_strategy() {
+  CANARY_DEPLOYMENT_STRATEGY=$(jq -r '.canary_deployment_strategy' < "$SOURCE_POD_SHIFT_FILE_PATH")
+  echo "$CANARY_DEPLOYMENT_STRATEGY"
+}
+
+# Function to get the Desired Replica Count
+function desired_replica() {
+  DESIRED_REPLICA=$(jq -r '.desired_replica' < "$SOURCE_POD_SHIFT_FILE_PATH")
+  echo "$DESIRED_REPLICA"
+}
+
+# Function to get the Canary Deployment Deploy Artifact
+function canary_deployment_deploy_artifact() {
+  CANARY_DEPLOY_ARTIFACT=$(jq -r '.canary_deployment_deploy_artifact' < "$SOURCE_POD_SHIFT_FILE_PATH")
+  echo "$CANARY_DEPLOY_ARTIFACT"
+}
+
+# Function to get the Canary Deployment Name
+function canary_deployment_name() {
+  CANARY_DEPLOYMENT_NAME=$(jq -r '.canary_deployment_name' < "$SOURCE_POD_SHIFT_FILE_PATH")
+  echo "$CANARY_DEPLOYMENT_NAME"
+}
+
+# Function to get the Canary Deployment Pod Shift Percentage
+function canary_deployment_pod_shift_percentage() {
+  CANARY_DEPLOYMENT_POD_SHIFT_PERCENTAGE=$(jq -r '.canary_deployment_pod_shift_percentage' < "$SOURCE_POD_SHIFT_FILE_PATH")
+  echo "$CANARY_DEPLOYMENT_POD_SHIFT_PERCENTAGE"
+}
+
+# Function to get the Baseline Deployment Deploy Artifact
+function baseline_deployment_deploy_artifact() {
+  BASELINE_DEPLOY_ARTIFACT=$(jq -r '.baseline_deployment_deploy_artifact' < "$SOURCE_POD_SHIFT_FILE_PATH")
+  echo "$BASELINE_DEPLOY_ARTIFACT"
+}
+
+# Function to get the Baseline Deployment Name
+function baseline_deployment_name() {
+  BASELINE_DEPLOYMENT_NAME=$(jq -r '.baseline_deployment_name' < "$SOURCE_POD_SHIFT_FILE_PATH")
+  echo "$BASELINE_DEPLOYMENT_NAME"
+}
+
+# Function to get the Namespace
+function canary_namespace() {
+  CANARY_NAMESPACE=$(jq -r '.namespace' < "$SOURCE_POD_SHIFT_FILE_PATH")
+  echo "$CANARY_NAMESPACE"
 }
