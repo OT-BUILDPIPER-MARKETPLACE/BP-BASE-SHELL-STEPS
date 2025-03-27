@@ -1,2 +1,4 @@
 deploy_stateless_app.json
 environment_build.json
+main.py
+requirements.txt
