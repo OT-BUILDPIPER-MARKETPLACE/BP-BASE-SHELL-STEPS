@@ -113,6 +113,12 @@ function getEnvVariables() {
   jq -r '.build_detail.env_variables | to_entries | .[] | "\(.key)=\(.value)"' < "${SOURCE_FILE_PATH}"
 }
 
+# Function to get the docker image name
+function getRepoCloneDepth() {
+  REPO_CLONE_DEPTH=$(jq -r .git_repo.depth < "${SOURCE_FILE_PATH}")
+  echo "$REPO_CLONE_DEPTH"
+}
+
 #-----------------------------------------Deploy ENVS-------------------------------------------------
 
 # Function to get the deployment service account name
