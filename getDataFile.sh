@@ -4,6 +4,7 @@ SOURCE_FILE_PATH="/bp/data/environment_build"
 SOURCE_DEPLOY_FILE_PATH="/bp/data/deploy_stateless_app"
 SOURCE_POD_SHIFT_FILE_PATH="/bp/data/pod_shift"
 SOURCE_POD_SHIFT_FILE_PATH="/bp/data/pod_shift"
+SOURCE_PIPELINE_CONTEXT_PARAMETERS_FILE_PATH="/bp/data/pipeline_context_param"
 
 
 # SOURCE_DEPLOY_FILE_PATH=$1
@@ -211,4 +212,24 @@ function baseline_deployment_name() {
 function canary_namespace() {
   CANARY_NAMESPACE=$(jq -r '.namespace' < "$SOURCE_POD_SHIFT_FILE_PATH")
   echo "$CANARY_NAMESPACE"
+}
+
+#-----------------------------------------PIPELINE CONTEXT PARAMETERS-------------------------------------------------
+
+# Function to get the Application ID
+function application_id() {
+  APPLICATION_ID=$(jq -r '.application_id' < "$SOURCE_PIPELINE_CONTEXT_PARAMETERS_FILE_PATH")
+  echo "$APPLICATION_ID"
+}
+
+# Function to get the Pipeline ID
+function pipeline_id() {
+  PIPELINE_ID=$(jq -r '.pipeline_id' < "$SOURCE_PIPELINE_CONTEXT_PARAMETERS_FILE_PATH")
+  echo "$PIPELINE_ID"
+}
+
+# Function to get the Pipeline Execution ID
+function pipeline_execution_id() {
+  PIPELINE_EXECUTION_ID=$(jq -r '.pipeline_execution_id' < "$SOURCE_PIPELINE_CONTEXT_PARAMETERS_FILE_PATH")
+  echo "$PIPELINE_EXECUTION_ID"
 }
