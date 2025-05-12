@@ -3,7 +3,7 @@
 SOURCE_FILE_PATH="/bp/data/environment_build"
 SOURCE_DEPLOY_FILE_PATH="/bp/data/deploy_stateless_app"
 SOURCE_POD_SHIFT_FILE_PATH="/bp/data/pod_shift"
-SOURCE_POD_SHIFT_FILE_PATH="/bp/data/pod_shift"
+# SOURCE_POD_SHIFT_FILE_PATH="/bp/data/pod_shift"
 SOURCE_PIPELINE_CONTEXT_PARAMETERS_FILE_PATH="/bp/data/pipeline_context_param"
 
 
