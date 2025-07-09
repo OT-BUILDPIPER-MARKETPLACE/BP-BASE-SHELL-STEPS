@@ -40,3 +40,11 @@ function logDebugMessage() {
         logColoredMessage "${CYAN}" DEBUG "$1"
     fi
 }
+
+# This will print hyperlink
+function print_hyperlink() {
+  local url="$1"
+  local text="${2:-$1}"
+  printf "\e[32m\e]8;;%s\a%s\e]8;;\a\e[0m\n" "$url" "$text"
+}
+
