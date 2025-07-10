@@ -78,8 +78,19 @@ function getAssumeRole() {
 	export AWS_SESSION_TOKEN
 }
 
+
+function getEncryptedCredential() {
+    local credentialManagement="$1"
+    local credentialKey="$2"
+    
+    encrypted_value=$(echo "$credentialManagement" | jq -r ".$credentialKey")
+    echo "$encrypted_value"
+}
+
 function set_aws_credentials() {
     CREDENTIAL_MANAGEMENT_NAME=$1
+
+    if [[ -n $CREDENTIAL_MANAGEMENT_NAME ]]; then
     
     aws_creds=$(getEncryptedCredential "$CREDENTIAL_MANAGEMENT" "$CREDENTIAL_MANAGEMENT_NAME.CREDENTIAL_KEY_VALUE_PAIR")
 
@@ -88,7 +99,9 @@ function set_aws_credentials() {
 
     export AWS_ACCESS_KEY_ID="$aws_access_key"
     export AWS_SECRET_ACCESS_KEY="$aws_secret_access_key"
-    }
+
+    fi
+}
 
 function check_aws_authentication() {
     if ! aws sts get-caller-identity &>/dev/null; then
