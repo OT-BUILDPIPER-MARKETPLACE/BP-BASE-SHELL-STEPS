@@ -35,3 +35,8 @@ function textExistsInALine(){
     done
     return 1
 }
+
+function encodeFileContent() {
+    local FILE_PATH=$1
+    base64 $FILE_PATH
+}

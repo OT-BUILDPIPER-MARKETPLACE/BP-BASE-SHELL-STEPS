@@ -32,3 +32,7 @@ function logWarningMessage() {
     MESSAGE="$1"
     logColoredMessage "${YELLOW}" WARNING "${MESSAGE}"
 }
+function logInfoMessageYello() {
+    MESSAGE="$1"
+    logColoredMessage "${YELLOW}" INFO "${MESSAGE}"
+}
