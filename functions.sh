@@ -1,5 +1,7 @@
 #!/bin/bash
 
+debug=true
+
 generateOutput() {
     ACTIVITY_SUB_TASK_CODE="$1"
     Status="$2"
@@ -22,6 +24,41 @@ generateOutput() {
     echo "Job step response updated in: $file_name"
 }
 
+init_file() {
+   EXECUTION_DIR="/bp/execution_dir"
+    OUTPUT_DIR="${EXECUTION_DIR}/${EXECUTION_TASK_ID}"
+    STEP_NAME="$ACTIVITY_SUB_TASK_CODE"
+    FILE="${OUTPUT_DIR}/${STEP_NAME}_output.json"
+   if [ ! -f "$FILE" ]; then
+        mkdir -p "$OUTPUT_DIR"
+        echo '{"events": {}}' > "$FILE"
+    fi
+}
+
+add_event() {
+    EXECUTION_DIR="/bp/execution_dir"
+    OUTPUT_DIR="${EXECUTION_DIR}/${EXECUTION_TASK_ID}"
+    STEP_NAME="$ACTIVITY_SUB_TASK_CODE"
+    FILE="${OUTPUT_DIR}/${STEP_NAME}_output.json"
+
+    EVENT_NAME="$1"
+    STATUS="$2"
+    REASON="$3"
+    MESSAGE="$4"
+
+    init_file
+
+    jq --arg event "$EVENT_NAME" \
+       --arg status "$STATUS" \
+       --arg reason "$REASON" \
+       --arg message "$MESSAGE" \
+       '.events[$event] = {
+          status: $status,
+          reason: $reason,
+          message: $message
+       }' "$FILE" > "${FILE}.tmp" && mv "${FILE}.tmp" "$FILE"
+}
+
 function getComponentName() {
   COMPONENT_NAME=$(jq -r .build_detail.repository.name < /bp/data/environment_build )
   echo "$COMPONENT_NAME"
@@ -32,29 +69,9 @@ function getRepositoryTag() {
   echo "$BUILD_REPOSITORY_TAG"
 }
 
-function getDockerfileParentPath() {
-  DOCKERFILE_ENTRY=$(jq -r .build_detail.dockerfile_path  < /bp/data/environment_build)
-  getNthTextInALine "$DOCKERFILE_ENTRY" : 2
-}
-
-function getDockerfileName() {
-  DOCKERFILE_ENTRY=$(jq -r .build_detail.dockerfile_path  < /bp/data/environment_build)
-  getNthTextInALine "$DOCKERFILE_ENTRY" : 1
-}
-
-function getProjectEnv() {
-  PROJECT_ENV_NAME=$(jq -r .environment.project_env  < /bp/data/environment_build)
-  getNthTextInALine "$PROJECT_ENV_NAME" : 1
-}
-
-function getServiceName() {
-  PROJECT_SVC_NAME=$(jq -r .component.name  < /bp/data/environment_build)
-  getNthTextInALine "$PROJECT_SVC_NAME" : 1
-}
-
 function saveTaskStatus() {
-  TASK_STATUS="$1"
-  ACTIVITY_SUB_TASK_CODE="$2"  
+  TASK_STATUS=$1
+  ACTIVITY_SUB_TASK_CODE=$2  
 
   if [ "$TASK_STATUS" -eq 0 ]
   then
