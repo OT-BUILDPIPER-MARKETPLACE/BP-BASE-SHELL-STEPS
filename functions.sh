@@ -58,35 +58,35 @@ add_event() {
      }' "$FILE" > "${FILE}.tmp" && mv "${FILE}.tmp" "$FILE"
 }
 
-# function getComponentName() {
-#   COMPONENT_NAME=$(jq -r .build_detail.repository.name < /bp/data/environment_build )
-#   echo "$COMPONENT_NAME"
-# }
+function getComponentName() {
+  COMPONENT_NAME=$(jq -r .build_detail.repository.name < /bp/data/environment_build )
+  echo "$COMPONENT_NAME"
+}
 
-# function getRepositoryTag() {
-#   BUILD_REPOSITORY_TAG=$(jq -r .build_detail.repository.tag < /bp/data/environment_build)
-#   echo "$BUILD_REPOSITORY_TAG"
-# }
+function getRepositoryTag() {
+  BUILD_REPOSITORY_TAG=$(jq -r .build_detail.repository.tag < /bp/data/environment_build)
+  echo "$BUILD_REPOSITORY_TAG"
+}
 
-# function getDockerfilePath() {
-#   DOCKERFILE_ENTRY=$(jq -r .build_detail.dockerfile_path  < /bp/data/environment_build)
-#   echo "$DOCKERFILE_ENTRY"
-# }
+function getDockerfilePath() {
+  DOCKERFILE_ENTRY=$(jq -r .build_detail.dockerfile_path  < /bp/data/environment_build)
+  echo "$DOCKERFILE_ENTRY"
+}
 
-# function getGitBranch() {
-#   GIT_BRANCH_NAME=$(jq -r .git_repo.branch_name  < /bp/data/environment_build)
-#   echo "$GIT_BRANCH_NAME"
-# }
+function getGitBranch() {
+  GIT_BRANCH_NAME=$(jq -r .git_repo.branch_name  < /bp/data/environment_build)
+  echo "$GIT_BRANCH_NAME"
+}
 
-# function getServiceName() {
-#   PROJECT_SVC_NAME=$(jq -r .component.name  < /bp/data/environment_build)
-#   echo "$PROJECT_SVC_NAME"
-# }
+function getServiceName() {
+  PROJECT_SVC_NAME=$(jq -r .component.name  < /bp/data/environment_build)
+  echo "$PROJECT_SVC_NAME"
+}
 
-# function getMasterEnv() {
-#     PROJECT_MASTER_ENV=$(jq -r .environment.environment_master  < /bp/data/environment_build)
-#     echo "$PROJECT_MASTER_ENV"
-# }
+function getMasterEnv() {
+    PROJECT_MASTER_ENV=$(jq -r .environment.environment_master  < /bp/data/environment_build)
+    echo "$PROJECT_MASTER_ENV"
+}
 
 function saveTaskStatus() {
   TASK_STATUS="$1"
