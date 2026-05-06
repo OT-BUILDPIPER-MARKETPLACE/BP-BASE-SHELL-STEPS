@@ -1,60 +1,84 @@
 #!/bin/bash
 
 generateOutput() {
-    ACTIVITY_SUB_TASK_CODE="$1"
-    Status="$2"
-    Message="$3"
-
-    EXECUTION_DIR="/bp/execution_dir"
-    OUTPUT_DIR="${EXECUTION_DIR}/${EXECUTION_TASK_ID}"
-    file_name="$OUTPUT_DIR/summary.json"
-
-    mkdir -p "$OUTPUT_DIR"
-
-    file_content=""
-    if [[ -f "$file_name" ]]; then
-        file_content=$(<"$file_name")
-    fi
-    [[ "$file_content" != "["* ]] && file_content="[$file_content]"
-    updated_content=$(jq -c ". += [{ \"$ACTIVITY_SUB_TASK_CODE\": { \"status\": \"$Status\", \"message\": \"$Message\" } }]" <<< "$file_content")
-    echo "$updated_content" | jq "." > "$file_name"
-    echo "{ \"$ACTIVITY_SUB_TASK_CODE\": { \"status\": \"$Status\", \"message\": \"$Message\" } }" | jq "." > "${OUTPUT_DIR}/${ACTIVITY_SUB_TASK_CODE}.json"
-    echo "Job step response updated in: $file_name"
+  Task=$1
+  Status=$2
+  Message=$3
+  OUTPUT_DIR=/src/${EXECUTION_DIR}/${EXECUTION_TASK_ID}
+  mkdir -p "${OUTPUT_DIR}"
+  echo "{ \"${Task}\": {\"status\": \"${Status}\", \"message\": \"${Message}\"}}"  | jq . > "${OUTPUT_DIR}"/summary.json
+  echo "{ \"status\": \"${Status}\", \"message\": \"${Message}\"}"  | jq . > "${OUTPUT_DIR}"/"${Task}".json
 }
 
-# function getComponentName() {
-#   COMPONENT_NAME=$(jq -r .build_detail.repository.name < /bp/data/environment_build )
-#   echo "$COMPONENT_NAME"
-# }
+init_file() {
+  EXECUTION_DIR="/bp/execution_dir"
+  OUTPUT_DIR="${EXECUTION_DIR}/${EXECUTION_TASK_ID}"
+  STEP_NAME="$ACTIVITY_SUB_TASK_CODE"
+  FILE="${OUTPUT_DIR}/${STEP_NAME}_output.json"
 
-# function getRepositoryTag() {
-#   BUILD_REPOSITORY_TAG=$(jq -r .build_detail.repository.tag < /bp/data/environment_build)
-#   echo "$BUILD_REPOSITORY_TAG"
-# }
+  mkdir -p "$OUTPUT_DIR"
 
-# function getDockerfilePath() {
-#   DOCKERFILE_ENTRY=$(jq -r .build_detail.dockerfile_path  < /bp/data/environment_build)
-#   echo "$DOCKERFILE_ENTRY"
-# }
+  if [ ! -f "$FILE" ]; then
+    echo '{ "events": {} }' > "$FILE"
+  fi
+}
 
-# function getGitBranch() {
-#   GIT_BRANCH_NAME=$(jq -r .git_repo.branch_name  < /bp/data/environment_build)
-#   echo "$GIT_BRANCH_NAME"
-# }
+add_event() {
+    EXECUTION_DIR="/bp/execution_dir"
+    OUTPUT_DIR="${EXECUTION_DIR}/${EXECUTION_TASK_ID}"
+    STEP_NAME="$ACTIVITY_SUB_TASK_CODE"
+    FILE="${OUTPUT_DIR}/${STEP_NAME}_output.json"
+  EVENT_NAME="$1"
+  STATUS="$2"
+  REASON="$3"
+  MESSAGE="$4"
 
-# function getServiceName() {
-#   PROJECT_SVC_NAME=$(jq -r .component.name  < /bp/data/environment_build)
-#   echo "$PROJECT_SVC_NAME"
-# }
+  init_file
 
-# function getMasterEnv() {
-#     PROJECT_MASTER_ENV=$(jq -r .environment.environment_master  < /bp/data/environment_build)
-#     echo "$PROJECT_MASTER_ENV"
-# }
+  jq --arg event "$EVENT_NAME" \
+     --arg status "$STATUS" \
+     --arg reason "$REASON" \
+     --arg message "$MESSAGE" \
+     '.events[$event] = {
+        status: $status,
+        reason: $reason,
+        message: $message
+     }' "$FILE" > "${FILE}.tmp" && mv "${FILE}.tmp" "$FILE"
+}
+
+function getComponentName() {
+  COMPONENT_NAME=$(jq -r .build_detail.repository.name < /bp/data/environment_build )
+  echo "$COMPONENT_NAME"
+}
+
+function getRepositoryTag() {
+  BUILD_REPOSITORY_TAG=$(jq -r .build_detail.repository.tag < /bp/data/environment_build)
+  echo "$BUILD_REPOSITORY_TAG"
+}
+
+function getDockerfilePath() {
+  DOCKERFILE_ENTRY=$(jq -r .build_detail.dockerfile_path  < /bp/data/environment_build)
+  echo "$DOCKERFILE_ENTRY"
+}
+
+function getGitBranch() {
+  GIT_BRANCH_NAME=$(jq -r .git_repo.branch_name  < /bp/data/environment_build)
+  echo "$GIT_BRANCH_NAME"
+}
+
+function getServiceName() {
+  PROJECT_SVC_NAME=$(jq -r .component.name  < /bp/data/environment_build)
+  echo "$PROJECT_SVC_NAME"
+}
+
+function getMasterEnv() {
+    PROJECT_MASTER_ENV=$(jq -r .environment.environment_master  < /bp/data/environment_build)
+    echo "$PROJECT_MASTER_ENV"
+}
 
 function saveTaskStatus() {
-  TASK_STATUS="$1"
-  ACTIVITY_SUB_TASK_CODE="$2"  
+  TASK_STATUS=$1
+  ACTIVITY_SUB_TASK_CODE=$2  
 
   if [ "$TASK_STATUS" -eq 0 ]
   then
