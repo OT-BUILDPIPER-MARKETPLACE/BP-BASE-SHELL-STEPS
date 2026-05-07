@@ -20,7 +20,7 @@ generateOutput() {
     [[ "$file_content" != "["* ]] && file_content="[$file_content]"
     updated_content=$(jq -c ". += [{ \"$ACTIVITY_SUB_TASK_CODE\": { \"status\": \"$Status\", \"message\": \"$Message\" } }]" <<< "$file_content")
     echo "$updated_content" | jq "." > "$file_name"
-    # echo "{ \"$ACTIVITY_SUB_TASK_CODE\": { \"status\": \"$Status\", \"message\": \"$Message\" } }" | jq "." > "${OUTPUT_DIR}/${ACTIVITY_SUB_TASK_CODE}.json"
+    echo "{ \"$ACTIVITY_SUB_TASK_CODE\": { \"status\": \"$Status\", \"message\": \"$Message\" } }" | jq "." > "${OUTPUT_DIR}/${ACTIVITY_SUB_TASK_CODE}.json"
     echo "Job step response updated in: $file_name"
 }
 
@@ -32,7 +32,7 @@ init_file() {
    if [ ! -f "$FILE" ]; then
         mkdir -p "$OUTPUT_DIR"
         echo '{"events": {}}' > "$FILE"
-  fi
+    fi
 }
 
 add_event() {
@@ -40,51 +40,33 @@ add_event() {
     OUTPUT_DIR="${EXECUTION_DIR}/${EXECUTION_TASK_ID}"
     STEP_NAME="$ACTIVITY_SUB_TASK_CODE"
     FILE="${OUTPUT_DIR}/${STEP_NAME}_output.json"
-  EVENT_NAME="$1"
-  STATUS="$2"
-  REASON="$3"
-  MESSAGE="$4"
 
-  init_file
+    EVENT_NAME="$1"
+    STATUS="$2"
+    REASON="$3"
+    MESSAGE="$4"
 
-  jq --arg event "$EVENT_NAME" \
-     --arg status "$STATUS" \
-     --arg reason "$REASON" \
-     --arg message "$MESSAGE" \
-     '.events[$event] = {
-        status: $status,
-        reason: $reason,
-        message: $message
-     }' "$FILE" > "${FILE}.tmp" && mv "${FILE}.tmp" "$FILE"
+    init_file
+
+    jq --arg event "$EVENT_NAME" \
+       --arg status "$STATUS" \
+       --arg reason "$REASON" \
+       --arg message "$MESSAGE" \
+       '.events[$event] = {
+          status: $status,
+          reason: $reason,
+          message: $message
+       }' "$FILE" > "${FILE}.tmp" && mv "${FILE}.tmp" "$FILE"
 }
 
 function getComponentName() {
-  COMPONENT_NAME=`cat /bp/data/environment_build | jq -r .build_detail.repository.name`
+  COMPONENT_NAME=$(jq -r .build_detail.repository.name < /bp/data/environment_build )
   echo "$COMPONENT_NAME"
 }
 
 function getRepositoryTag() {
-  BUILD_REPOSITORY_TAG=`cat /bp/data/environment_build | jq -r .build_detail.repository.tag`
+  BUILD_REPOSITORY_TAG=$(jq -r .build_detail.repository.tag < /bp/data/environment_build)
   echo "$BUILD_REPOSITORY_TAG"
-}
-
-function logInfoMessage() {
-    MESSAGE="$1"
-    CURRENT_DATE=`date "+%D: %T"`
-    echo -e "[$CURRENT_DATE] "$COLOR_START$GREEN[INFO]$COLOR_END" $MESSAGE"
-
-}
-
-function logErrorMessage() {
-    MESSAGE="$1"
-    CURRENT_DATE=`date "+%D: %T"`
-    echo -e "[$CURRENT_DATE] "$COLOR_START$RED[ERROR]$COLOR_END" $MESSAGE"
-}
-
-function logWarningMessage() {
-    MESSAGE="$1"
-    CURRENT_DATE=`date "+%D: %T"`
-    echo -e "[$CURRENT_DATE] "$COLOR_START$YELLOW[WARNING]$COLOR_END" $MESSAGE"
 }
 
 function saveTaskStatus() {
