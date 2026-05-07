@@ -1,9 +1,6 @@
-GREEN="32m"
-RED="31m"
-YELLOW="1;33m"
+#!/bin/bash
 
-COLOR_START="\e["
-COLOR_END="\e[0m"
+debug=true
 
 generateOutput() {
     ACTIVITY_SUB_TASK_CODE="$1"
