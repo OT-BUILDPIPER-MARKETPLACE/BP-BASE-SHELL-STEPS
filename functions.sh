@@ -22,35 +22,70 @@ generateOutput() {
     echo "Job step response updated in: $file_name"
 }
 
-# function getComponentName() {
-#   COMPONENT_NAME=$(jq -r .build_detail.repository.name < /bp/data/environment_build )
-#   echo "$COMPONENT_NAME"
-# }
+init_file() {
+   EXECUTION_DIR="/bp/execution_dir"
+    OUTPUT_DIR="${EXECUTION_DIR}/${EXECUTION_TASK_ID}"
+    STEP_NAME="$ACTIVITY_SUB_TASK_CODE"
+    FILE="${OUTPUT_DIR}/${STEP_NAME}_output.json"
+   if [ ! -f "$FILE" ]; then
+        mkdir -p "$OUTPUT_DIR"
+        echo '{"events": {}}' > "$FILE"
+    fi
+}
 
-# function getRepositoryTag() {
-#   BUILD_REPOSITORY_TAG=$(jq -r .build_detail.repository.tag < /bp/data/environment_build)
-#   echo "$BUILD_REPOSITORY_TAG"
-# }
+add_event() {
+    EXECUTION_DIR="/bp/execution_dir"
+    OUTPUT_DIR="${EXECUTION_DIR}/${EXECUTION_TASK_ID}"
+    STEP_NAME="$ACTIVITY_SUB_TASK_CODE"
+    FILE="${OUTPUT_DIR}/${STEP_NAME}_output.json"
 
-# function getDockerfilePath() {
-#   DOCKERFILE_ENTRY=$(jq -r .build_detail.dockerfile_path  < /bp/data/environment_build)
-#   echo "$DOCKERFILE_ENTRY"
-# }
+    EVENT_NAME="$1"
+    STATUS="$2"
+    REASON="$3"
+    MESSAGE="$4"
 
-# function getGitBranch() {
-#   GIT_BRANCH_NAME=$(jq -r .git_repo.branch_name  < /bp/data/environment_build)
-#   echo "$GIT_BRANCH_NAME"
-# }
+    init_file
 
-# function getServiceName() {
-#   PROJECT_SVC_NAME=$(jq -r .component.name  < /bp/data/environment_build)
-#   echo "$PROJECT_SVC_NAME"
-# }
+    jq --arg event "$EVENT_NAME" \
+       --arg status "$STATUS" \
+       --arg reason "$REASON" \
+       --arg message "$MESSAGE" \
+       '.events[$event] = {
+          status: $status,
+          reason: $reason,
+          message: $message
+       }' "$FILE" > "${FILE}.tmp" && mv "${FILE}.tmp" "$FILE"
+}
 
-# function getMasterEnv() {
-#     PROJECT_MASTER_ENV=$(jq -r .environment.environment_master  < /bp/data/environment_build)
-#     echo "$PROJECT_MASTER_ENV"
-# }
+function getComponentName() {
+  COMPONENT_NAME=$(jq -r .build_detail.repository.name < /bp/data/environment_build )
+  echo "$COMPONENT_NAME"
+}
+
+function getRepositoryTag() {
+  BUILD_REPOSITORY_TAG=$(jq -r .build_detail.repository.tag < /bp/data/environment_build)
+  echo "$BUILD_REPOSITORY_TAG"
+}
+
+function getDockerfilePath() {
+  DOCKERFILE_ENTRY=$(jq -r .build_detail.dockerfile_path  < /bp/data/environment_build)
+  echo "$DOCKERFILE_ENTRY"
+}
+
+function getGitBranch() {
+  GIT_BRANCH_NAME=$(jq -r .git_repo.branch_name  < /bp/data/environment_build)
+  echo "$GIT_BRANCH_NAME"
+}
+
+function getServiceName() {
+  PROJECT_SVC_NAME=$(jq -r .component.name  < /bp/data/environment_build)
+  echo "$PROJECT_SVC_NAME"
+}
+
+function getMasterEnv() {
+    PROJECT_MASTER_ENV=$(jq -r .environment.environment_master  < /bp/data/environment_build)
+    echo "$PROJECT_MASTER_ENV"
+}
 
 function saveTaskStatus() {
   TASK_STATUS="$1"
