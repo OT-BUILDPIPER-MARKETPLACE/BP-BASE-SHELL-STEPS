@@ -1,6 +1,5 @@
 #!/bin/bash
 
-debug=true
 
 generateOutput() {
     ACTIVITY_SUB_TASK_CODE="$1"
@@ -25,11 +24,11 @@ generateOutput() {
 }
 
 init_file() {
-   EXECUTION_DIR="/bp/execution_dir"
+    EXECUTION_DIR="/bp/execution_dir"
     OUTPUT_DIR="${EXECUTION_DIR}/${EXECUTION_TASK_ID}"
     STEP_NAME="$ACTIVITY_SUB_TASK_CODE"
     FILE="${OUTPUT_DIR}/${STEP_NAME}_output.json"
-   if [ ! -f "$FILE" ]; then
+    if [ ! -f "$FILE" ]; then
         mkdir -p "$OUTPUT_DIR"
         echo '{"events": {}}' > "$FILE"
     fi
