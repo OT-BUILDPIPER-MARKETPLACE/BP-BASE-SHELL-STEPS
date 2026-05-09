@@ -1,0 +1,18 @@
+{
+    "change_ticket_id": "${CHANGE_TICKET_ID}",
+    "description": "${CHANGE_TICKET_ID_DESCRIPTION}",
+    "status":"Success",
+    "feature_list": [
+        ${SUB_TASK_JSON}
+    ],
+    "application_service_mapping": [
+            {
+            "${APPLICATION_NAME}": [
+                ${SERVICE_JSON}
+
+            ]
+        }  
+        
+    ]
+}
+

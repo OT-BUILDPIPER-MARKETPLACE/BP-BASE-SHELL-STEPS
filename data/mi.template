@@ -1,0 +1,9 @@
+{
+    "application":"${application}",
+    "environment":"${environment}",
+    "service":"${service}",
+    "organization":"${organization}",
+    "source_key":"${source_key}",
+    "report_data":"${base64EncodedResponse}",
+    "report_file_path"  :${report_file_path}
+}
