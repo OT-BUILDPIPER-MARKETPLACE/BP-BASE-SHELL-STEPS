@@ -152,19 +152,26 @@ function getDecryptedCredential() {
     local fernet_key="$1"
     local encrypted_value="$2"
 
-    python3 -c "
-from cryptography.fernet import Fernet
+    python3 - <<EOF
+from cryptography.fernet import Fernet, InvalidToken
+import sys
 
-fernet_key = '$fernet_key'
-f = Fernet(fernet_key.encode('utf-8'))
-encrypted_value = b'$encrypted_value'
+fernet_key = """$fernet_key""".strip()
+encrypted_value = """$encrypted_value""".strip().encode()
 
 try:
+    f = Fernet(fernet_key.encode())
     decrypted_value = f.decrypt(encrypted_value)
     print(decrypted_value.decode())
+
+except InvalidToken:
+    print("ERROR: Invalid Fernet token or mismatched key")
+    sys.exit(1)
+
 except Exception as e:
-    print(f'Decryption error: {e}')
-"
+    print(f"Unexpected error: {e}")
+    sys.exit(1)
+EOF
 }
 
 function passwordStrengthChecker() {
