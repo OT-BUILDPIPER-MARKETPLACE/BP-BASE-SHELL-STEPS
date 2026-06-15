@@ -5,9 +5,22 @@ SOURCE_DEPLOY_FILE_PATH="/bp/data/deploy_stateless_app"
 SOURCE_POD_SHIFT_FILE_PATH="/bp/data/pod_shift"
 # SOURCE_POD_SHIFT_FILE_PATH="/bp/data/pod_shift"
 SOURCE_PIPELINE_CONTEXT_PARAMETERS_FILE_PATH="/bp/data/pipeline_context_param"
-
+ROLLBACK_SOURCE_FILE_PATH="/bp/data/rollback_stateless_app"
 
 # SOURCE_DEPLOY_FILE_PATH=$1
+
+safe_jq_from_file() {
+  local file_path="$1"
+  local jq_filter="$2"
+  local default_value="${3:-}"
+
+  if [[ ! -f "$file_path" ]]; then
+    echo "$default_value"
+    return 0
+  fi
+
+  jq -r "$jq_filter" < "$file_path" 2>/dev/null || echo "$default_value"
+}
 
 # Function to get the docker image name
 function getImageName() {
@@ -20,6 +33,7 @@ function getImageTag() {
   BUILD_IMAGE_TAG=$(jq -r .build_detail.repository.tag < "${SOURCE_FILE_PATH}")
   echo "$BUILD_IMAGE_TAG"
 }
+
 
 # Function to get the Dockerfile path
 function getDockerfilePath() {
@@ -158,59 +172,85 @@ function getDeploymentNamespace() {
   echo "$DEPLOYMENT_NAMESPACE"
 }
 
+extract_service() {
+    name="$1"
+    echo "$name" | grep -oP '^(?:v-[0-9]+)?\K[a-zA-Z0-9-]+(?=-prod|-dev|-staging|-uat|-qa)'
+}
+
+function getDeploymentServiceName() {
+  SERVICE_NAME=$(jq -r '.k8s_manifest[] | select(.k8s_manifest_type == "service") | .metadata.name' < "$SOURCE_DEPLOY_FILE_PATH")
+  EXTRACTED_SERVICE_NAME=$(extract_service "$SERVICE_NAME")
+  echo "$EXTRACTED_SERVICE_NAME"
+}
+
 #-----------------------------------------POD SHIFT ENVS-------------------------------------------------
 
 # Function to get the Canary Status
 function canary_status() {
-  CANARY_STATUS=$(jq -r .canary < "$SOURCE_POD_SHIFT_FILE_PATH")
+  CANARY_STATUS=$(safe_jq_from_file "$SOURCE_POD_SHIFT_FILE_PATH" '.canary' "false")
   echo "$CANARY_STATUS"
+}
+
+function get_version() {
+  VERSION=$(safe_jq_from_file "$SOURCE_POD_SHIFT_FILE_PATH" '.version')
+  echo "$VERSION"
+}
+function get_previous_version() {
+  PREVIOUS_VERSION=$(safe_jq_from_file "$SOURCE_POD_SHIFT_FILE_PATH" '.previous_version')
+  echo "$PREVIOUS_VERSION"
+}
+
+# Function to get the canary_parent_global_task_id
+function get_canary_parent_global_task_id() {
+  CANARY_PARENT_GLOBAL_TASK_ID=$(safe_jq_from_file "$SOURCE_POD_SHIFT_FILE_PATH" '.canary_parent_global_task_id')
+  echo "$CANARY_PARENT_GLOBAL_TASK_ID"
 }
 
 # Function to get the Canary Deployment Strategy
 function canary_deployment_strategy() {
-  CANARY_DEPLOYMENT_STRATEGY=$(jq -r '.canary_deployment_strategy' < "$SOURCE_POD_SHIFT_FILE_PATH")
+  CANARY_DEPLOYMENT_STRATEGY=$(safe_jq_from_file "$SOURCE_POD_SHIFT_FILE_PATH" '.canary_deployment_strategy')
   echo "$CANARY_DEPLOYMENT_STRATEGY"
 }
 
 # Function to get the Desired Replica Count
 function desired_replica() {
-  DESIRED_REPLICA=$(jq -r '.desired_replica' < "$SOURCE_POD_SHIFT_FILE_PATH")
+  DESIRED_REPLICA=$(safe_jq_from_file "$SOURCE_POD_SHIFT_FILE_PATH" '.desired_replica')
   echo "$DESIRED_REPLICA"
 }
 
 # Function to get the Canary Deployment Deploy Artifact
 function canary_deployment_deploy_artifact() {
-  CANARY_DEPLOY_ARTIFACT=$(jq -r '.canary_deployment_deploy_artifact' < "$SOURCE_POD_SHIFT_FILE_PATH")
+  CANARY_DEPLOY_ARTIFACT=$(safe_jq_from_file "$SOURCE_POD_SHIFT_FILE_PATH" '.canary_deployment_deploy_artifact')
   echo "$CANARY_DEPLOY_ARTIFACT"
 }
 
 # Function to get the Canary Deployment Name
 function canary_deployment_name() {
-  CANARY_DEPLOYMENT_NAME=$(jq -r '.canary_deployment_name' < "$SOURCE_POD_SHIFT_FILE_PATH")
+  CANARY_DEPLOYMENT_NAME=$(safe_jq_from_file "$SOURCE_POD_SHIFT_FILE_PATH" '.canary_deployment_name')
   echo "$CANARY_DEPLOYMENT_NAME"
 }
 
 # Function to get the Canary Deployment Pod Shift Percentage
 function canary_deployment_pod_shift_percentage() {
-  CANARY_DEPLOYMENT_POD_SHIFT_PERCENTAGE=$(jq -r '.canary_deployment_pod_shift_percentage' < "$SOURCE_POD_SHIFT_FILE_PATH")
+  CANARY_DEPLOYMENT_POD_SHIFT_PERCENTAGE=$(safe_jq_from_file "$SOURCE_POD_SHIFT_FILE_PATH" '.canary_deployment_pod_shift_percentage')
   echo "$CANARY_DEPLOYMENT_POD_SHIFT_PERCENTAGE"
 }
 
 # Function to get the Baseline Deployment Deploy Artifact
 function baseline_deployment_deploy_artifact() {
-  BASELINE_DEPLOY_ARTIFACT=$(jq -r '.baseline_deployment_deploy_artifact' < "$SOURCE_POD_SHIFT_FILE_PATH")
+  BASELINE_DEPLOY_ARTIFACT=$(safe_jq_from_file "$SOURCE_POD_SHIFT_FILE_PATH" '.baseline_deployment_deploy_artifact')
   echo "$BASELINE_DEPLOY_ARTIFACT"
 }
 
 # Function to get the Baseline Deployment Name
 function baseline_deployment_name() {
-  BASELINE_DEPLOYMENT_NAME=$(jq -r '.baseline_deployment_name' < "$SOURCE_POD_SHIFT_FILE_PATH")
+  BASELINE_DEPLOYMENT_NAME=$(safe_jq_from_file "$SOURCE_POD_SHIFT_FILE_PATH" '.baseline_deployment_name')
   echo "$BASELINE_DEPLOYMENT_NAME"
 }
 
 # Function to get the Namespace
 function canary_namespace() {
-  CANARY_NAMESPACE=$(jq -r '.namespace' < "$SOURCE_POD_SHIFT_FILE_PATH")
+  CANARY_NAMESPACE=$(safe_jq_from_file "$SOURCE_POD_SHIFT_FILE_PATH" '.namespace')
   echo "$CANARY_NAMESPACE"
 }
 
@@ -218,18 +258,158 @@ function canary_namespace() {
 
 # Function to get the Application ID
 function application_id() {
-  APPLICATION_ID=$(jq -r '.application_id' < "$SOURCE_PIPELINE_CONTEXT_PARAMETERS_FILE_PATH")
+  APPLICATION_ID=$(safe_jq_from_file "$SOURCE_PIPELINE_CONTEXT_PARAMETERS_FILE_PATH" '.application_id')
   echo "$APPLICATION_ID"
 }
 
 # Function to get the Pipeline ID
 function pipeline_id() {
-  PIPELINE_ID=$(jq -r '.pipeline_id' < "$SOURCE_PIPELINE_CONTEXT_PARAMETERS_FILE_PATH")
+  PIPELINE_ID=$(safe_jq_from_file "$SOURCE_PIPELINE_CONTEXT_PARAMETERS_FILE_PATH" '.pipeline_id')
   echo "$PIPELINE_ID"
 }
 
 # Function to get the Pipeline Execution ID
 function pipeline_execution_id() {
-  PIPELINE_EXECUTION_ID=$(jq -r '.pipeline_execution_id' < "$SOURCE_PIPELINE_CONTEXT_PARAMETERS_FILE_PATH")
+  PIPELINE_EXECUTION_ID=$(safe_jq_from_file "$SOURCE_PIPELINE_CONTEXT_PARAMETERS_FILE_PATH" '.pipeline_execution_id')
   echo "$PIPELINE_EXECUTION_ID"
+}
+
+function pipeline_execution_ChangeRequestID() {
+  PIPELINE_EXECUTION_CHANGE_REQUEST_ID=$(safe_jq_from_file "$SOURCE_PIPELINE_CONTEXT_PARAMETERS_FILE_PATH" 'to_entries[] | select(.key | endswith("servicenow_id.key")) | .value')
+  # default to NA if empty/null/n/a
+  if [[ -z "$PIPELINE_EXECUTION_CHANGE_REQUEST_ID" || "$PIPELINE_EXECUTION_CHANGE_REQUEST_ID" == "null" || "$PIPELINE_EXECUTION_CHANGE_REQUEST_ID" == "n/a" || "$PIPELINE_EXECUTION_CHANGE_REQUEST_ID" == "NA" ]]; then
+    PIPELINE_EXECUTION_CHANGE_REQUEST_ID="NA"
+  fi
+  echo "$PIPELINE_EXECUTION_CHANGE_REQUEST_ID"
+}
+
+function pipeline_execution_jira_ticket_id() {
+  PIPELINE_EXECUTION_JIRA_TICKET_ID=$(safe_jq_from_file "$SOURCE_PIPELINE_CONTEXT_PARAMETERS_FILE_PATH" '.release_ticket')
+  echo "$PIPELINE_EXECUTION_JIRA_TICKET_ID"
+}
+
+#-----------------------------------ROLLBACK STATELESS APP--------------------------------------------
+
+# Common jq base path
+JQ_BASE='.buildpiper_meta_data.rollback'
+
+# ----------------------------------------------------
+# rollback version
+# ----------------------------------------------------
+getRollbackVersion() {
+  jq -r "${JQ_BASE}.rollback_version" "$ROLLBACK_SOURCE_FILE_PATH"
+}
+
+# ----------------------------------------------------
+# previous deployment name + tag
+# ----------------------------------------------------
+get_previous_deployment_name_and_tag() {
+  local name tag
+  name=$(jq -r "${JQ_BASE}.previous_deployment_name" "$ROLLBACK_SOURCE_FILE_PATH")
+  tag=$(jq -r "${JQ_BASE}.previous_deployment_tag" "$ROLLBACK_SOURCE_FILE_PATH")
+  echo "${name}:${tag}"
+}
+
+# ----------------------------------------------------
+# previous deployment name
+# ----------------------------------------------------
+get_previous_deployment_name() {
+  local name
+  name=$(jq -r "${JQ_BASE}.previous_deployment_name" "$ROLLBACK_SOURCE_FILE_PATH")
+  echo $name
+}
+
+# ----------------------------------------------------
+# previous deployment tag
+# ----------------------------------------------------
+get_previous_deployment_tag() {
+  local tag
+  tag=$(jq -r "${JQ_BASE}.previous_deployment_tag" "$ROLLBACK_SOURCE_FILE_PATH")
+  echo $tag
+}
+
+# ----------------------------------------------------
+# current deployment name + tag
+# ----------------------------------------------------
+get_current_deployment_name_and_tag() {
+  local name tag
+  name=$(jq -r "${JQ_BASE}.current_deployment_name" "$ROLLBACK_SOURCE_FILE_PATH")
+  tag=$(jq -r "${JQ_BASE}.current_deployment_tag" "$ROLLBACK_SOURCE_FILE_PATH")
+  echo "${name}:${tag}"
+}
+
+# ----------------------------------------------------
+# current deployment name
+# ----------------------------------------------------
+get_current_deployment_name() {
+  local name
+  name=$(jq -r "${JQ_BASE}.current_deployment_name" "$ROLLBACK_SOURCE_FILE_PATH")
+  echo $name
+}
+
+# ----------------------------------------------------
+# current deployment tag
+# ----------------------------------------------------
+get_current_deployment_tag() {
+  local tag
+  tag=$(jq -r "${JQ_BASE}.current_deployment_tag" "$ROLLBACK_SOURCE_FILE_PATH")
+  echo $tag
+}
+
+# ----------------------------------------------------
+# last pod shift percentage
+# ----------------------------------------------------
+get_last_pod_shift_percentage() {
+  jq -r "${JQ_BASE}.current_deployment_last_pod_shift" "$ROLLBACK_SOURCE_FILE_PATH"
+}
+
+# ----------------------------------------------------
+# application and env
+# ----------------------------------------------------
+get_application_and_env() {
+  local app env
+  app=$(jq -r "${JQ_BASE}.application" "$ROLLBACK_SOURCE_FILE_PATH")
+  env=$(jq -r "${JQ_BASE}.application_env" "$ROLLBACK_SOURCE_FILE_PATH")
+  echo "${app}:${env}"
+}
+
+# ----------------------------------------------------
+# application name
+# ----------------------------------------------------
+get_application_name() {
+  local app
+  app=$(jq -r "${JQ_BASE}.application" "$ROLLBACK_SOURCE_FILE_PATH")
+  echo $app
+}
+
+# ----------------------------------------------------
+# namespace
+# ----------------------------------------------------
+get_namespace() {
+  jq -r "${JQ_BASE}.namespace" "$ROLLBACK_SOURCE_FILE_PATH"
+}
+
+# ----------------------------------------------------
+# versions
+# ----------------------------------------------------
+get_versions() {
+  local prev curr
+  prev=$(jq -r "${JQ_BASE}.previous_version" "$ROLLBACK_SOURCE_FILE_PATH")
+  curr=$(jq -r "${JQ_BASE}.current_version" "$ROLLBACK_SOURCE_FILE_PATH")
+  echo "previous=${prev}, current=${curr}"
+}
+
+
+# ----------------------------------------------------
+# deployment names only
+# ----------------------------------------------------
+get_deployment_names() {
+  local prev curr
+  prev=$(jq -r "${JQ_BASE}.previous_deployment_name" "$ROLLBACK_SOURCE_FILE_PATH")
+  curr=$(jq -r "${JQ_BASE}.current_deployment_name" "$ROLLBACK_SOURCE_FILE_PATH")
+  echo "previous=${prev}, current=${curr}"
+}
+
+get_is_canary_deployment() {
+  jq -r '.buildpiper_meta_data.rollback.current_deployment_is_canary' "$ROLLBACK_SOURCE_FILE_PATH"
 }
